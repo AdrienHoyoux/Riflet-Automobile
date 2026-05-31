@@ -140,28 +140,36 @@ npm run dev
 
 1. **Docker Manager** → **Compose** → **Compose from URL**
 2. URL du repo : `https://github.com/AdrienHoyoux/Riflet-Automobile`
-3. Hostinger detecte automatiquement **`docker-compose.yml`**  
-   *(repo privé : ajoutez une deploy key — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
-4. Ajoutez les **variables d'environnement** dans le formulaire :
+3. Hostinger detecte automatiquement **`docker-compose.yml`**
+4. Ajoutez les **variables d'environnement** (minimum recommandé) :
 
-| Variable | Exemple |
-|----------|---------|
+| Variable | Valeur pour votre VPS |
+|----------|----------------------|
 | `DOMAIN` | `hoyouxcorp.tech` |
 | `DJANGO_SECRET_KEY` | longue chaîne aléatoire |
-| `DJANGO_DEBUG` | `False` |
-| `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
-| `CORS_ALLOWED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
-| `CSRF_TRUSTED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
 | `MYSQL_PASSWORD` | mot de passe fort |
 | `MYSQL_ROOT_PASSWORD` | mot de passe fort |
-| `ADMIN_PASSWORD` | mot de passe admin (pas `admin123`) |
+| `ADMIN_PASSWORD` | mot de passe admin |
 
 5. Cliquez **Deploy** — le premier build peut prendre 5–10 min
-6. **Docker Manager** → projet → conteneur `riflet_backend` → **Terminal** :
+6. Terminal conteneur **backend** :
 
 ```bash
 python manage.py seed_data
 ```
+
+### Depannage si le deploiement echoue
+
+| Erreur probable | Solution |
+|-----------------|----------|
+| `network traefik-proxy not found` | Deployez d'abord le modele **Traefik** du catalogue |
+| Reseau avec un autre nom | Verifiez avec `docker network ls`, puis definissez `TRAEFIK_NETWORK=nom_du_reseau` |
+| Build frontend timeout / OOM | Relancez **Update** ; un VPS 2 Go+ est recommande |
+| Repo prive inaccessible | Ajoutez une [deploy key GitHub](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/) |
+| Conteneurs en Restarting | **View logs** → si mot de passe MySQL change, supprimez le projet et redeployez |
+| `Host(\`\`)` dans les logs | Variable `DOMAIN` manquante — ajoutez `DOMAIN=hoyouxcorp.tech` |
+
+*(repo privé : deploy key requise — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
 
 ### Gestion via le tableau de bord
 

@@ -1,46 +1,50 @@
 # Production — Hostinger VPS Docker Manager + Traefik
 # Hostinger detecte automatiquement ce fichier (docker-compose.yml).
 # Dev local : docker compose -f docker-compose.dev.yml up --build
+#
+# Prerequis Hostinger :
+# 1. Deployer le modele Traefik (catalogue) AVANT ce projet
+# 2. Reseau Docker "traefik-proxy" doit exister (cree par Traefik)
+# 3. Renseigner DOMAIN et les mots de passe dans les variables d'environnement
 
 services:
   db:
     image: mysql:8.0
-    container_name: riflet_mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_prod_pass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_prod_pass}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_prod_pass}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile.prod
-    container_name: riflet_backend
     restart: unless-stopped
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
       DATABASE_HOST: db
       DATABASE_PORT: "3306"
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-production}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-hoyouxcorp.tech,www.hoyouxcorp.tech,backend}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://hoyouxcorp.tech,https://www.hoyouxcorp.tech}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://hoyouxcorp.tech,https://www.hoyouxcorp.tech}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_prod_pass}
       CONTACT_EMAIL: ${CONTACT_EMAIL:-hoyouxadrien09@outlook.com}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-rifletautomobile@gmail.com}
     volumes:
       - media_data:/app/media
@@ -52,8 +56,8 @@ services:
       - traefik-proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
-      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-proxy}
+      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN:-hoyouxcorp.tech}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
       - traefik.http.routers.riflet-api.priority=100
@@ -64,13 +68,12 @@ services:
       context: .
       dockerfile: frontend/Dockerfile.prod
       args:
-        NUXT_PUBLIC_SITE_URL: https://${DOMAIN}
-        NUXT_PUBLIC_API_BASE: https://${DOMAIN}
-    container_name: riflet_frontend
+        NUXT_PUBLIC_SITE_URL: https://${DOMAIN:-hoyouxcorp.tech}
+        NUXT_PUBLIC_API_BASE: https://${DOMAIN:-hoyouxcorp.tech}
     restart: unless-stopped
     environment:
-      NUXT_PUBLIC_SITE_URL: https://${DOMAIN}
-      NUXT_PUBLIC_API_BASE: https://${DOMAIN}
+      NUXT_PUBLIC_SITE_URL: https://${DOMAIN:-hoyouxcorp.tech}
+      NUXT_PUBLIC_API_BASE: https://${DOMAIN:-hoyouxcorp.tech}
       NUXT_API_BASE_SERVER: http://backend:8000
     depends_on:
       - backend
@@ -79,8 +82,8 @@ services:
       - traefik-proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
-      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN}`)
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-proxy}
+      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN:-hoyouxcorp.tech}`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
       - traefik.http.routers.riflet-web.priority=1
@@ -89,6 +92,7 @@ services:
 networks:
   traefik-proxy:
     external: true
+    name: ${TRAEFIK_NETWORK:-traefik-proxy}
 
 volumes:
   mysql_data:
