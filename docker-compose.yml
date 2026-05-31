@@ -1,98 +1,78 @@
-# Production — Hostinger VPS Docker Manager + Traefik
-# Dev local : docker compose -f docker-compose.dev.yml up --build
-#
-# Prerequis Hostinger :
-# 1. Deployer Traefik (catalogue) avant ce projet
-# 2. Reseau Docker "traefik-proxy" doit exister
-# 3. Variables : DOMAIN, DJANGO_SECRET_KEY, MYSQL_PASSWORD, etc.
-
 services:
   db:
     image: mysql:8.0
+    container_name: riflet_mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_prod_pass}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_prod_pass}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_pass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pass}
     volumes:
       - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_prod_pass}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 5
 
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile.prod
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: riflet_backend
     restart: unless-stopped
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
       DATABASE_HOST: db
       DATABASE_PORT: "3306"
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-production}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-hoyouxcorp.tech,www.hoyouxcorp.tech,backend}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://hoyouxcorp.tech,https://www.hoyouxcorp.tech}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://hoyouxcorp.tech,https://www.hoyouxcorp.tech}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_prod_pass}
-      CONTACT_EMAIL: ${CONTACT_EMAIL:-hoyouxadrien09@outlook.com}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-rifletautomobile@gmail.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
     volumes:
+      - ./backend:/app
       - media_data:/app/media
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - default
-      - traefik-proxy
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-proxy}
-      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN:-hoyouxcorp.tech}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
-      - traefik.http.routers.riflet-api.entrypoints=websecure
-      - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-api.priority=100
-      - traefik.http.services.riflet-api.loadbalancer.server.port=8000
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8000"
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile.prod
-      args:
-        NUXT_PUBLIC_SITE_URL: https://${DOMAIN:-hoyouxcorp.tech}
-        NUXT_PUBLIC_API_BASE: https://${DOMAIN:-hoyouxcorp.tech}
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: riflet_frontend
     restart: unless-stopped
     environment:
-      NUXT_PUBLIC_SITE_URL: https://${DOMAIN:-hoyouxcorp.tech}
-      NUXT_PUBLIC_API_BASE: https://${DOMAIN:-hoyouxcorp.tech}
+      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.tech}
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.tech}
       NUXT_API_BASE_SERVER: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
     depends_on:
       - backend
-    networks:
-      - default
-      - traefik-proxy
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-proxy}
-      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN:-hoyouxcorp.tech}`)
-      - traefik.http.routers.riflet-web.entrypoints=websecure
-      - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-web.priority=1
-      - traefik.http.services.riflet-web.loadbalancer.server.port=3000
-
-networks:
-  traefik-proxy:
-    external: true
-    name: ${TRAEFIK_NETWORK:-traefik-proxy}
+    command: sh -c "npm install && npm run dev"
 
 volumes:
   mysql_data:
   media_data:
+  frontend_node_modules:
