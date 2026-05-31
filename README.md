@@ -28,7 +28,7 @@ Application web full-stack pour le garage **Riflet Automobile** à Malmedy (Belg
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 | Service   | URL                                      |
@@ -140,13 +140,13 @@ npm run dev
 
 1. **Docker Manager** → **Compose** → **Compose from URL**
 2. URL du repo : `https://github.com/AdrienHoyoux/Riflet-Automobile`
-3. Fichier compose : `docker-compose.hostinger.yml`  
+3. Hostinger detecte automatiquement **`docker-compose.yml`**  
    *(repo privé : ajoutez une deploy key — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
 4. Ajoutez les **variables d'environnement** dans le formulaire :
 
 | Variable | Exemple |
 |----------|---------|
-| `DOMAIN` | `rifletautomobile.be` |
+| `DOMAIN` | `hoyouxcorp.tech` |
 | `DJANGO_SECRET_KEY` | longue chaîne aléatoire |
 | `DJANGO_DEBUG` | `False` |
 | `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
