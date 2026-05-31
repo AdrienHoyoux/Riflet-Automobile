@@ -45,7 +45,6 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-rifletautomobile@gmail.com}
     volumes:
       - media_data:/app/media
-      - static_data:/app/staticfiles
     depends_on:
       db:
         condition: service_healthy
@@ -95,4 +94,3 @@ networks:
 volumes:
   mysql_data:
   media_data:
-  static_data:
