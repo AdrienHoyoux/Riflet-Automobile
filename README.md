@@ -56,7 +56,8 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 ## Structure du projet
 
 ```
-├── docker-compose.yml
+├── docker-compose.yml      # Production (Hostinger VPS + Traefik)
+├── docker-compose.dev.yml  # Developpement local
 ├── backend/          # Django + DRF
 │   ├── config/       # Settings Django
 │   └── garage/       # Modèles, API, Admin, seed
@@ -139,9 +140,13 @@ npm run dev
 ### Étape B — Déployer Riflet Automobile
 
 1. **Docker Manager** → **Compose** → **Compose from URL**
-2. URL du repo : `https://github.com/AdrienHoyoux/Riflet-Automobile`
-3. Hostinger detecte automatiquement **`docker-compose.yml`**
-4. Ajoutez les **variables d'environnement** (minimum recommandé) :
+2. URL directe du fichier (repo privé ou branche `main`) :
+
+   `https://raw.githubusercontent.com/AdrienHoyoux/Riflet-Automobile/main/docker-compose.yml`
+
+   *(Alternative : URL GitHub `https://github.com/AdrienHoyoux/Riflet-Automobile` si Hostinger detecte `docker-compose.yml`)*
+3. **Nom du projet** : `riflet-automobile`
+4. Ajoutez les **variables d'environnement** :
 
 | Variable | Valeur pour votre VPS |
 |----------|----------------------|
@@ -162,6 +167,8 @@ python manage.py seed_data
 
 | Erreur probable | Solution |
 |-----------------|----------|
+| **`project not found`** | Creez un **nouveau** deploiement (pas Update). Nom : `riflet-automobile` |
+| Fichier compose introuvable | Utilisez l'URL raw de `docker-compose.yml` (etape B) |
 | `network traefik-proxy not found` | Deployez d'abord le modele **Traefik** du catalogue |
 | Reseau avec un autre nom | Verifiez avec `docker network ls`, puis definissez `TRAEFIK_NETWORK=nom_du_reseau` |
 | Build frontend timeout / OOM | Relancez **Update** ; un VPS 2 Go+ est recommande |
@@ -218,8 +225,8 @@ Variables importantes dans `.env` :
 ### 3. Lancer l'application
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build
-docker compose -f docker-compose.prod.yml exec backend python manage.py seed_data
+docker compose up -d --build
+docker compose exec backend python manage.py seed_data
 ```
 
 ### 4. Nginx + HTTPS
@@ -239,7 +246,7 @@ Pointer le domaine (DNS chez Hostinger) vers l'IP du VPS (enregistrement **A**).
 ```bash
 cd /var/www/Riflet-Automobile
 git pull
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose up -d --build
 ```
 
 ## Licence

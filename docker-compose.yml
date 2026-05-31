@@ -1,11 +1,10 @@
 # Production — Hostinger VPS Docker Manager + Traefik
-# Hostinger detecte automatiquement ce fichier (docker-compose.yml).
 # Dev local : docker compose -f docker-compose.dev.yml up --build
 #
 # Prerequis Hostinger :
-# 1. Deployer le modele Traefik (catalogue) AVANT ce projet
-# 2. Reseau Docker "traefik-proxy" doit exister (cree par Traefik)
-# 3. Renseigner DOMAIN et les mots de passe dans les variables d'environnement
+# 1. Deployer Traefik (catalogue) avant ce projet
+# 2. Reseau Docker "traefik-proxy" doit exister
+# 3. Variables : DOMAIN, DJANGO_SECRET_KEY, MYSQL_PASSWORD, etc.
 
 services:
   db:
