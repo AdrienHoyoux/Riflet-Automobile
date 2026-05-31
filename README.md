@@ -126,12 +126,113 @@ npm install
 npm run dev
 ```
 
-## Production
+## Production (VPS Hostinger + Docker Manager)
 
-1. Modifier `.env` : `DJANGO_DEBUG=False`, clé secrète forte, mots de passe sécurisés
-2. Mettre à jour `NUXT_PUBLIC_SITE_URL` avec le domaine final
-3. Configurer un reverse proxy (Nginx) avec HTTPS
-4. Remplacer `runserver` par Gunicorn dans le Dockerfile backend
+> Méthode recommandée si vous utilisez le **tableau de bord Docker** dans hPanel.
+
+### Étape A — DNS et Traefik
+
+1. Chez Hostinger (DNS), créez un enregistrement **A** : `@` → IP du VPS  
+2. hPanel → **VPS** → **Docker Manager** → déployez le modèle **Traefik** (catalogue)  
+3. Attendez que Traefik soit **Running**
+
+### Étape B — Déployer Riflet Automobile
+
+1. **Docker Manager** → **Compose** → **Compose from URL**
+2. URL du repo : `https://github.com/AdrienHoyoux/Riflet-Automobile`
+3. Fichier compose : `docker-compose.hostinger.yml`  
+   *(repo privé : ajoutez une deploy key — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
+4. Ajoutez les **variables d'environnement** dans le formulaire :
+
+| Variable | Exemple |
+|----------|---------|
+| `DOMAIN` | `rifletautomobile.be` |
+| `DJANGO_SECRET_KEY` | longue chaîne aléatoire |
+| `DJANGO_DEBUG` | `False` |
+| `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
+| `CORS_ALLOWED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `CSRF_TRUSTED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `MYSQL_PASSWORD` | mot de passe fort |
+| `MYSQL_ROOT_PASSWORD` | mot de passe fort |
+| `ADMIN_PASSWORD` | mot de passe admin (pas `admin123`) |
+
+5. Cliquez **Deploy** — le premier build peut prendre 5–10 min
+6. **Docker Manager** → projet → conteneur `riflet_backend` → **Terminal** :
+
+```bash
+python manage.py seed_data
+```
+
+### Gestion via le tableau de bord
+
+- **Logs** : ⋮ → View logs (par conteneur)
+- **Redémarrage** : ⋮ → Restart
+- **Mise à jour** : poussez sur GitHub → ⋮ → Update
+
+---
+
+## Production (VPS manuel SSH)
+
+### 1. Préparer le serveur (Ubuntu)
+
+```bash
+# Connexion SSH (IP et mot de passe depuis hPanel Hostinger)
+ssh root@VOTRE_IP_VPS
+
+# Docker
+curl -fsSL https://get.docker.com | sh
+apt install -y nginx certbot python3-certbot-nginx git
+```
+
+### 2. Cloner et configurer
+
+```bash
+cd /var/www
+git clone https://github.com/AdrienHoyoux/Riflet-Automobile.git
+cd Riflet-Automobile
+cp .env.example .env
+nano .env
+```
+
+Variables importantes dans `.env` :
+
+| Variable | Exemple production |
+|----------|-------------------|
+| `DJANGO_DEBUG` | `False` |
+| `DJANGO_SECRET_KEY` | chaîne longue aléatoire |
+| `DJANGO_ALLOWED_HOSTS` | `votre-domaine.com,www.votre-domaine.com,backend` |
+| `CORS_ALLOWED_ORIGINS` | `https://votre-domaine.com,https://www.votre-domaine.com` |
+| `CSRF_TRUSTED_ORIGINS` | `https://votre-domaine.com,https://www.votre-domaine.com` |
+| `NUXT_PUBLIC_SITE_URL` | `https://votre-domaine.com` |
+| `NUXT_PUBLIC_API_BASE` | `https://votre-domaine.com` |
+| `MYSQL_*` | mots de passe forts |
+
+### 3. Lancer l'application
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec backend python manage.py seed_data
+```
+
+### 4. Nginx + HTTPS
+
+```bash
+cp deploy/nginx/riflet.conf.example /etc/nginx/sites-available/riflet
+nano /etc/nginx/sites-available/riflet   # remplacer VOTRE_DOMAINE
+ln -s /etc/nginx/sites-available/riflet /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
+```
+
+Pointer le domaine (DNS chez Hostinger) vers l'IP du VPS (enregistrement **A**).
+
+### Mises à jour
+
+```bash
+cd /var/www/Riflet-Automobile
+git pull
+docker compose -f docker-compose.prod.yml up -d --build
+```
 
 ## Licence
 

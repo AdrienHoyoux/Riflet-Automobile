@@ -1,0 +1,98 @@
+# Hostinger Docker Manager + Traefik
+# 1. Deployer Traefik depuis le catalogue
+# 2. Compose from URL → docker-compose.hostinger.yml
+# 3. Renseigner les variables d'environnement (DOMAIN obligatoire)
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: riflet_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
+      MYSQL_USER: ${MYSQL_USER:-riflet_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.prod
+    container_name: riflet_backend
+    restart: unless-stopped
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
+      MYSQL_USER: ${MYSQL_USER:-riflet_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-hoyouxadrien09@outlook.com}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-rifletautomobile@gmail.com}
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api.entrypoints=websecure
+      - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-api.priority=100
+      - traefik.http.services.riflet-api.loadbalancer.server.port=8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.prod
+      args:
+        NUXT_PUBLIC_SITE_URL: https://${DOMAIN}
+        NUXT_PUBLIC_API_BASE: https://${DOMAIN}
+    container_name: riflet_frontend
+    restart: unless-stopped
+    environment:
+      NUXT_PUBLIC_SITE_URL: https://${DOMAIN}
+      NUXT_PUBLIC_API_BASE: https://${DOMAIN}
+      NUXT_API_BASE_SERVER: http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - default
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.riflet-web.entrypoints=websecure
+      - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-web.priority=1
+      - traefik.http.services.riflet-web.loadbalancer.server.port=3000
+
+networks:
+  traefik-proxy:
+    external: true
+
+volumes:
+  mysql_data:
+  media_data:
+  static_data:
