@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Diensten",
+    "news": "Nieuws",
+    "about": "Over ons",
+    "contact": "Contact"
+  },
+  "hero": {
+    "cta_services": "Onze diensten",
+    "cta_contact": "Contacteer ons",
+    "badge": "Garage alle merken — Malmedy",
+    "all_brands": "Garage alle merken"
+  },
+  "home": {
+    "services_title": "Onze diensten",
+    "services_subtitle": "Onderhoud, reparatie en verkoop van voertuigen alle merken in Malmedy.",
+    "news_title": "Nieuws",
+    "news_subtitle": "Het laatste nieuws van de garage.",
+    "view_all": "Alles bekijken",
+    "read_more": "Lees meer",
+    "why_title": "Waarom voor ons kiezen?",
+    "why_items": {
+      "all_brands": "Onafhankelijke garage alle merken — particulieren en professionals",
+      "quality": "Kwaliteitsservice aanbevolen door onze klanten",
+      "location": "Gelegen in Malmedy, in het hart van de Ardennen",
+      "multilingual": "Service in het Frans, Duits en Nederlands"
+    },
+    "cta_title": "Afspraak nodig?",
+    "cta_text": "Contacteer ons telefonisch of via ons online formulier."
+  },
+  "reviews": {
+    "label": "Klantbeoordelingen",
+    "title": "Wat onze klanten zeggen",
+    "subtitle": "Google-beoordelingen voor Riflet Automobile in Malmedy.",
+    "based_on": "{count} beoordelingen op Google",
+    "view_on_google": "Bekijk op Google",
+    "source": "Google"
+  },
+  "services": {
+    "title": "Onze diensten",
+    "subtitle": "Uitgebreide diensten voor voertuigen alle merken, particulieren en professionals."
+  },
+  "news": {
+    "title": "Nieuws",
+    "subtitle": "Blijf op de hoogte van de laatste aanbiedingen en nieuwtjes.",
+    "back": "Terug naar nieuws",
+    "published": "Gepubliceerd op"
+  },
+  "about": {
+    "title": "Over ons",
+    "subtitle": "Ontdek Riflet Automobile, uw garage alle merken in Malmedy.",
+    "hours_title": "Openingstijden",
+    "days": {
+      "monday": "Maandag",
+      "tuesday": "Dinsdag",
+      "wednesday": "Woensdag",
+      "thursday": "Donderdag",
+      "friday": "Vrijdag",
+      "saturday": "Zaterdag",
+      "sunday": "Zondag"
+    },
+    "location_title": "Ons adres",
+    "map_label": "Locatie",
+    "map_title": "Ons vinden",
+    "open_in_osm": "Openen in OpenStreetMap"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Een vraag? Stuur ons een bericht, wij antwoorden snel.",
+    "form": {
+      "name": "Volledige naam",
+      "email": "E-mailadres",
+      "phone": "Telefoon (optioneel)",
+      "subject": "Onderwerp",
+      "message": "Uw bericht",
+      "submit": "Bericht versturen",
+      "sending": "Verzenden...",
+      "success": "Uw bericht is succesvol verzonden. Bedankt!",
+      "error": "Er is een fout opgetreden. Probeer het opnieuw."
+    },
+    "info_title": "Contactgegevens",
+    "call_us": "Bel ons"
+  },
+  "footer": {
+    "description": "Autogarage alle merken en bandenhandelaar in Malmedy. Onderhoud, reparatie en tweedehandswagens.",
+    "navigation": "Navigatie",
+    "contact": "Contact",
+    "follow": "Volg ons",
+    "rights": "Alle rechten voorbehouden."
+  },
+  "seo": {
+    "home_title": "Riflet Automobile — Garage alle merken in Malmedy",
+    "home_description": "Autogarage alle merken en bandenhandelaar in Malmedy. Onderhoud, reparatie, banden en tweedehandswagens. Avenue de Norvège 3.",
+    "services_title": "Diensten — Riflet Automobile",
+    "services_description": "Onderhoud, reparatie, banden en voertuigen alle merken in Malmedy.",
+    "news_title": "Nieuws — Riflet Automobile",
+    "news_description": "Het laatste nieuws en aanbiedingen van Riflet Automobile in Malmedy.",
+    "about_title": "Over ons — Riflet Automobile",
+    "about_description": "Riflet Automobile, uw betrouwbare garage alle merken in Malmedy in de Belgische Ardennen.",
+    "contact_title": "Contact — Riflet Automobile",
+    "contact_description": "Contacteer Riflet Automobile in Malmedy. Avenue de Norvège 3 — 080 39 99 81."
+  }
+}

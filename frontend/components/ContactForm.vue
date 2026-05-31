@@ -1,0 +1,121 @@
+<template>
+  <form class="space-y-5" @submit.prevent="handleSubmit">
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="name" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+          {{ $t('contact.form.name') }} *
+        </label>
+        <input
+          id="name"
+          v-model="form.name"
+          type="text"
+          required
+          class="input-field"
+        >
+      </div>
+      <div>
+        <label for="email" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+          {{ $t('contact.form.email') }} *
+        </label>
+        <input
+          id="email"
+          v-model="form.email"
+          type="email"
+          required
+          class="input-field"
+        >
+      </div>
+    </div>
+
+    <div>
+      <label for="phone" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+        {{ $t('contact.form.phone') }}
+      </label>
+      <input
+        id="phone"
+        v-model="form.phone"
+        type="tel"
+        class="input-field"
+      >
+    </div>
+
+    <div>
+      <label for="subject" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+        {{ $t('contact.form.subject') }} *
+      </label>
+      <input
+        id="subject"
+        v-model="form.subject"
+        type="text"
+        required
+        class="input-field"
+      >
+    </div>
+
+    <div>
+      <label for="message" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+        {{ $t('contact.form.message') }} *
+      </label>
+      <textarea
+        id="message"
+        v-model="form.message"
+        required
+        rows="5"
+        minlength="10"
+        class="input-field resize-y"
+      />
+    </div>
+
+    <div v-if="successMessage" class="border-2 border-ink bg-acid px-4 py-3 text-sm font-medium text-ink">
+      {{ successMessage }}
+    </div>
+    <div v-if="errorMessage" class="border-2 border-ink bg-ink px-4 py-3 text-sm font-medium text-chalk">
+      {{ errorMessage }}
+    </div>
+
+    <button
+      type="submit"
+      class="btn-primary w-full sm:w-auto"
+      :disabled="loading"
+    >
+      {{ loading ? $t('contact.form.sending') : $t('contact.form.submit') }}
+    </button>
+  </form>
+</template>
+
+<script setup lang="ts">
+import type { ContactFormData } from '~/types/api'
+
+const { t } = useI18n()
+const loading = ref(false)
+const successMessage = ref('')
+const errorMessage = ref('')
+
+const form = reactive<ContactFormData>({
+  name: '',
+  email: '',
+  phone: '',
+  subject: '',
+  message: '',
+})
+
+async function handleSubmit() {
+  loading.value = true
+  successMessage.value = ''
+  errorMessage.value = ''
+
+  try {
+    await submitContact(form)
+    successMessage.value = t('contact.form.success')
+    form.name = ''
+    form.email = ''
+    form.phone = ''
+    form.subject = ''
+    form.message = ''
+  } catch {
+    errorMessage.value = t('contact.form.error')
+  } finally {
+    loading.value = false
+  }
+}
+</script>

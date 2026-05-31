@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "services": "Services",
+    "news": "Actualités",
+    "about": "À propos",
+    "contact": "Contact"
+  },
+  "hero": {
+    "cta_services": "Nos services",
+    "cta_contact": "Nous contacter",
+    "badge": "Garage toutes marques — Malmedy",
+    "all_brands": "Garage toutes marques"
+  },
+  "home": {
+    "services_title": "Nos services",
+    "services_subtitle": "Entretien, réparation et vente de véhicules toutes marques à Malmedy.",
+    "news_title": "Actualités",
+    "news_subtitle": "Les dernières nouvelles du garage.",
+    "view_all": "Voir tout",
+    "read_more": "Lire la suite",
+    "why_title": "Pourquoi nous choisir ?",
+    "why_items": {
+      "all_brands": "Garage indépendant toutes marques — particuliers et professionnels",
+      "quality": "Service de qualité recommandé par nos clients",
+      "location": "Situé à Malmedy, au cœur des Ardennes",
+      "multilingual": "Accueil en français, allemand et néerlandais"
+    },
+    "cta_title": "Besoin d'un rendez-vous ?",
+    "cta_text": "Contactez-nous par téléphone ou via notre formulaire en ligne."
+  },
+  "reviews": {
+    "label": "Avis clients",
+    "title": "Ce que disent nos clients",
+    "subtitle": "Avis Google pour Riflet Automobile à Malmedy.",
+    "based_on": "{count} avis sur Google",
+    "view_on_google": "Voir sur Google",
+    "source": "Google"
+  },
+  "services": {
+    "title": "Nos services",
+    "subtitle": "Des prestations complètes pour votre véhicule toutes marques, particuliers et professionnels."
+  },
+  "news": {
+    "title": "Actualités",
+    "subtitle": "Restez informé des dernières offres et nouveautés du garage.",
+    "back": "Retour aux actualités",
+    "published": "Publié le"
+  },
+  "about": {
+    "title": "À propos",
+    "subtitle": "Découvrez Riflet Automobile, votre garage toutes marques à Malmedy.",
+    "hours_title": "Horaires d'ouverture",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "location_title": "Notre adresse",
+    "map_label": "Localisation",
+    "map_title": "Nous trouver",
+    "open_in_osm": "Ouvrir dans OpenStreetMap"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Une question ? Envoyez-nous un message, nous vous répondrons rapidement.",
+    "form": {
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "phone": "Téléphone (optionnel)",
+      "subject": "Sujet",
+      "message": "Votre message",
+      "submit": "Envoyer le message",
+      "sending": "Envoi en cours...",
+      "success": "Votre message a bien été envoyé. Merci !",
+      "error": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "info_title": "Coordonnées",
+    "call_us": "Appelez-nous"
+  },
+  "footer": {
+    "description": "Garage automobile toutes marques et vendeur de pneus à Malmedy. Entretien, réparation et véhicules d'occasion.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "follow": "Suivez-nous",
+    "rights": "Tous droits réservés."
+  },
+  "seo": {
+    "home_title": "Riflet Automobile — Garage toutes marques à Malmedy",
+    "home_description": "Garage automobile toutes marques et vendeur de pneus à Malmedy. Entretien, réparation, pneus et véhicules d'occasion. Avenue de Norvège 3.",
+    "services_title": "Services — Riflet Automobile",
+    "services_description": "Entretien, réparation, pneus et véhicules toutes marques à Malmedy.",
+    "news_title": "Actualités — Riflet Automobile",
+    "news_description": "Les dernières actualités et offres de Riflet Automobile à Malmedy.",
+    "about_title": "À propos — Riflet Automobile",
+    "about_description": "Riflet Automobile, votre garage toutes marques de confiance à Malmedy, au cœur des Ardennes belges.",
+    "contact_title": "Contact — Riflet Automobile",
+    "contact_description": "Contactez Riflet Automobile à Malmedy. Avenue de Norvège 3 — 080 39 99 81."
+  }
+}

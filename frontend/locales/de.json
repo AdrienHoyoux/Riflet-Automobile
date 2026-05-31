@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "services": "Dienstleistungen",
+    "news": "Aktuelles",
+    "about": "Über uns",
+    "contact": "Kontakt"
+  },
+  "hero": {
+    "cta_services": "Unsere Dienstleistungen",
+    "cta_contact": "Kontaktieren Sie uns",
+    "badge": "Markenunabhängige Werkstatt — Malmedy",
+    "all_brands": "Werkstatt aller Marken"
+  },
+  "home": {
+    "services_title": "Unsere Dienstleistungen",
+    "services_subtitle": "Wartung, Reparatur und Fahrzeugverkauf aller Marken in Malmedy.",
+    "news_title": "Aktuelles",
+    "news_subtitle": "Die neuesten Nachrichten aus der Werkstatt.",
+    "view_all": "Alle anzeigen",
+    "read_more": "Weiterlesen",
+    "why_title": "Warum uns wählen?",
+    "why_items": {
+      "all_brands": "Markenunabhängige Werkstatt — Privat- und Geschäftskunden",
+      "quality": "Qualitätsservice, empfohlen von unseren Kunden",
+      "location": "In Malmedy, im Herzen der Ardennen",
+      "multilingual": "Service auf Französisch, Deutsch und Niederländisch"
+    },
+    "cta_title": "Termin benötigt?",
+    "cta_text": "Kontaktieren Sie uns telefonisch oder über unser Online-Formular."
+  },
+  "reviews": {
+    "label": "Kundenbewertungen",
+    "title": "Was unsere Kunden sagen",
+    "subtitle": "Google-Bewertungen für Riflet Automobile in Malmedy.",
+    "based_on": "{count} Bewertungen auf Google",
+    "view_on_google": "Auf Google ansehen",
+    "source": "Google"
+  },
+  "services": {
+    "title": "Unsere Dienstleistungen",
+    "subtitle": "Umfassende Leistungen für Fahrzeuge aller Marken, Privat- und Geschäftskunden."
+  },
+  "news": {
+    "title": "Aktuelles",
+    "subtitle": "Bleiben Sie informiert über die neuesten Angebote und Neuigkeiten.",
+    "back": "Zurück zu Aktuelles",
+    "published": "Veröffentlicht am"
+  },
+  "about": {
+    "title": "Über uns",
+    "subtitle": "Entdecken Sie Riflet Automobile, Ihre markenunabhängige Werkstatt in Malmedy.",
+    "hours_title": "Öffnungszeiten",
+    "days": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
+    },
+    "location_title": "Unsere Adresse",
+    "map_label": "Standort",
+    "map_title": "So finden Sie uns",
+    "open_in_osm": "In OpenStreetMap öffnen"
+  },
+  "contact": {
+    "title": "Kontakt",
+    "subtitle": "Eine Frage? Senden Sie uns eine Nachricht, wir antworten schnell.",
+    "form": {
+      "name": "Vollständiger Name",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefon (optional)",
+      "subject": "Betreff",
+      "message": "Ihre Nachricht",
+      "submit": "Nachricht senden",
+      "sending": "Wird gesendet...",
+      "success": "Ihre Nachricht wurde erfolgreich gesendet. Vielen Dank!",
+      "error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "info_title": "Kontaktdaten",
+    "call_us": "Rufen Sie uns an"
+  },
+  "footer": {
+    "description": "Markenunabhängige Autowerkstatt und Reifenhändler in Malmedy. Wartung, Reparatur und Gebrauchtwagen.",
+    "navigation": "Navigation",
+    "contact": "Kontakt",
+    "follow": "Folgen Sie uns",
+    "rights": "Alle Rechte vorbehalten."
+  },
+  "seo": {
+    "home_title": "Riflet Automobile — Markenunabhängige Werkstatt in Malmedy",
+    "home_description": "Markenunabhängige Autowerkstatt und Reifenhändler in Malmedy. Wartung, Reparatur, Reifen und Gebrauchtwagen. Avenue de Norvège 3.",
+    "services_title": "Dienstleistungen — Riflet Automobile",
+    "services_description": "Wartung, Reparatur, Reifen und Fahrzeuge aller Marken in Malmedy.",
+    "news_title": "Aktuelles — Riflet Automobile",
+    "news_description": "Die neuesten Nachrichten und Angebote von Riflet Automobile in Malmedy.",
+    "about_title": "Über uns — Riflet Automobile",
+    "about_description": "Riflet Automobile, Ihre markenunabhängige Werkstatt in Malmedy in den belgischen Ardennen.",
+    "contact_title": "Kontakt — Riflet Automobile",
+    "contact_description": "Kontaktieren Sie Riflet Automobile in Malmedy. Avenue de Norvège 3 — 080 39 99 81."
+  }
+}
