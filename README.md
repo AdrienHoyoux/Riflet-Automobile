@@ -174,8 +174,8 @@ python manage.py seed_data
 |-----------------|----------|
 | **`project not found`** | Creez un **nouveau** deploiement (pas Update). Nom : `riflet-automobile` |
 | Fichier compose introuvable | Utilisez l'URL raw de `docker-compose.yml` (etape B) |
-| `network traefik-proxy not found` | Deployez d'abord le modele **Traefik** du catalogue |
-| Reseau avec un autre nom | Verifiez avec `docker network ls`, puis definissez `TRAEFIK_NETWORK=nom_du_reseau` |
+| `network traefik-proxy not found` | Votre Traefik utilise `network_mode: host` (pas de réseau `traefik-proxy`) — le compose Riflet n'en a plus besoin ; mettez à jour le repo |
+| Reseau avec un autre nom | Uniquement si vous utilisez le modele Traefik **avec** reseau partage — definissez `TRAEFIK_NETWORK=nom_du_reseau` |
 | Build frontend timeout / OOM | Relancez **Update** ; un VPS 2 Go+ est recommande |
 | Repo prive inaccessible | Ajoutez une [deploy key GitHub](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/) |
 | Conteneurs en Restarting | **View logs** → si mot de passe MySQL change, supprimez le projet et redeployez |

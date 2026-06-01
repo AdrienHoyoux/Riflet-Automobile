@@ -48,12 +48,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - default
-      - traefik-proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
       - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
@@ -80,12 +76,8 @@ services:
       NUXT_API_BASE_SERVER: http://backend:8000
     depends_on:
       - backend
-    networks:
-      - default
-      - traefik-proxy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
       - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
@@ -100,8 +92,3 @@ services:
 volumes:
   mysql_data:
   media_data:
-
-networks:
-  traefik-proxy:
-    external: true
-    name: ${TRAEFIK_NETWORK:-traefik-proxy}
