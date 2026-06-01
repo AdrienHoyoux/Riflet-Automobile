@@ -30,5 +30,8 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+echo "Seeding initial data..."
+python manage.py seed_data
+
 echo "Starting application..."
 exec "$@"

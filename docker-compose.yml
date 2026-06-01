@@ -1,3 +1,7 @@
+# Production (Hostinger VPS + Traefik)
+# Deploy via Docker Manager → Compose from URL :
+# https://github.com/AdrienHoyoux/Riflet-Automobile
+
 services:
   db:
     image: mysql:8.0
@@ -10,8 +14,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pass}
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -20,8 +22,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile.prod
     container_name: riflet_backend
     restart: unless-stopped
     environment:
@@ -40,39 +42,66 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
     volumes:
-      - ./backend:/app
       - media_data:/app/media
-    ports:
-      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py seed_data &&
-             python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - default
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api.entrypoints=websecure
+      - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-api.priority=100
+      - traefik.http.services.riflet-api.loadbalancer.server.port=8000
+      - traefik.http.routers.riflet-api-www.rule=Host(`www.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api-www.entrypoints=websecure
+      - traefik.http.routers.riflet-api-www.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-api-www.priority=100
+      - traefik.http.services.riflet-api-www.loadbalancer.server.port=8000
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile.prod
+      args:
+        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://${DOMAIN}}
+        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://${DOMAIN}}
     container_name: riflet_frontend
     restart: unless-stopped
     environment:
-      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.tech}
-      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.tech}
+      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://${DOMAIN}}
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://${DOMAIN}}
       NUXT_API_BASE_SERVER: http://backend:8000
-    volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
-    command: sh -c "npm install && npm run dev"
+    networks:
+      - default
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.riflet-web.entrypoints=websecure
+      - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-web.priority=1
+      - traefik.http.services.riflet-web.loadbalancer.server.port=3000
+      - traefik.http.routers.riflet-web-www.rule=Host(`www.${DOMAIN}`)
+      - traefik.http.routers.riflet-web-www.entrypoints=websecure
+      - traefik.http.routers.riflet-web-www.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-web-www.priority=1
+      - traefik.http.services.riflet-web-www.loadbalancer.server.port=3000
 
 volumes:
   mysql_data:
   media_data:
-  frontend_node_modules:
+
+networks:
+  traefik-proxy:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik-proxy}

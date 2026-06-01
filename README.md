@@ -140,11 +140,11 @@ npm run dev
 ### Étape B — Déployer Riflet Automobile
 
 1. **Docker Manager** → **Compose** → **Compose from URL**
-2. URL directe du fichier (repo privé ou branche `main`) :
+2. URL du **dépôt GitHub** (obligatoire pour que le build inclue le code source) :
 
-   `https://raw.githubusercontent.com/AdrienHoyoux/Riflet-Automobile/main/docker-compose.yml`
+   `https://github.com/AdrienHoyoux/Riflet-Automobile`
 
-   *(Alternative : URL GitHub `https://github.com/AdrienHoyoux/Riflet-Automobile` si Hostinger detecte `docker-compose.yml`)*
+   *(N'utilisez pas l'URL raw du seul fichier `docker-compose.yml` — le build échouerait sans le code backend/frontend.)*
 3. **Nom du projet** : `riflet-automobile`
 4. Ajoutez les **variables d'environnement** :
 
@@ -152,6 +152,11 @@ npm run dev
 |----------|----------------------|
 | `DOMAIN` | `hoyouxcorp.tech` |
 | `DJANGO_SECRET_KEY` | longue chaîne aléatoire |
+| `DJANGO_ALLOWED_HOSTS` | `hoyouxcorp.tech,www.hoyouxcorp.tech,backend` |
+| `CORS_ALLOWED_ORIGINS` | `https://hoyouxcorp.tech,https://www.hoyouxcorp.tech` |
+| `CSRF_TRUSTED_ORIGINS` | `https://hoyouxcorp.tech,https://www.hoyouxcorp.tech` |
+| `NUXT_PUBLIC_SITE_URL` | `https://hoyouxcorp.tech` |
+| `NUXT_PUBLIC_API_BASE` | `https://hoyouxcorp.tech` |
 | `MYSQL_PASSWORD` | mot de passe fort |
 | `MYSQL_ROOT_PASSWORD` | mot de passe fort |
 | `ADMIN_PASSWORD` | mot de passe admin |
@@ -175,6 +180,7 @@ python manage.py seed_data
 | Repo prive inaccessible | Ajoutez une [deploy key GitHub](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/) |
 | Conteneurs en Restarting | **View logs** → si mot de passe MySQL change, supprimez le projet et redeployez |
 | `Host(\`\`)` dans les logs | Variable `DOMAIN` manquante — ajoutez `DOMAIN=hoyouxcorp.tech` |
+| `ENOENT package.json` ou `manage.py not found` | Le compose utilisait des volumes dev (`./frontend:/app`) qui écrasaient le code — mettez à jour le repo et redeployez |
 
 *(repo privé : deploy key requise — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
 
