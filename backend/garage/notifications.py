@@ -41,7 +41,6 @@ def _contact_email_content(contact) -> tuple[str, str, str]:
         f'{contact.message}\n'
         f'{"-" * 40}\n\n'
         f'Répondre à : {contact.email}\n'
-        f'Admin      : {SITE_URL}/admin/\n'
     )
 
     html_body = _contact_email_html(contact, phone, received_at)
@@ -54,7 +53,6 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
     phone_display = html.escape(phone)
     subject = html.escape(contact.subject)
     message = html.escape(contact.message).replace('\n', '<br>')
-    admin_url = html.escape(f'{SITE_URL}/admin/garage/contactmessage/')
     site_url = html.escape(SITE_URL)
     mailto = html.escape(f'mailto:{contact.email}')
 
@@ -80,9 +78,6 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
               <h1 style="margin:0;font-size:28px;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;color:#f5f2ea;line-height:1.2;">
                 Riflet Automobile
               </h1>
-              <p style="margin:10px 0 0;font-size:14px;color:#b3b3b3;">
-                Nouveau message reçu sur le site vitrine
-              </p>
             </td>
           </tr>
           <tr>
@@ -151,20 +146,9 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
           <!-- Actions -->
           <tr>
             <td style="background-color:#ffffff;padding:0 32px 32px;border-left:2px solid #0a0a0a;border-right:2px solid #0a0a0a;border-bottom:2px solid #0a0a0a;">
-              <table role="presentation" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="padding-right:12px;">
-                    <a href="{mailto}" style="display:inline-block;background-color:#d4ff00;color:#0a0a0a;font-size:12px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:14px 24px;border:2px solid #0a0a0a;">
-                      Répondre
-                    </a>
-                  </td>
-                  <td>
-                    <a href="{admin_url}" style="display:inline-block;background-color:#ffffff;color:#0a0a0a;font-size:12px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:14px 24px;border:2px solid #0a0a0a;">
-                      Voir l'admin
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <a href="{mailto}" style="display:inline-block;background-color:#d4ff00;color:#0a0a0a;font-size:12px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:14px 24px;border:2px solid #0a0a0a;">
+                Répondre
+              </a>
             </td>
           </tr>
 
