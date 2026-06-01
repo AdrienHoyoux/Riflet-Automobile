@@ -112,8 +112,12 @@ async function handleSubmit() {
     form.phone = ''
     form.subject = ''
     form.message = ''
-  } catch {
-    errorMessage.value = t('contact.form.error')
+  } catch (err: unknown) {
+    const fetchErr = err as { data?: { message?: string; detail?: string } }
+    errorMessage.value =
+      fetchErr.data?.message ||
+      fetchErr.data?.detail ||
+      t('contact.form.error')
   } finally {
     loading.value = false
   }

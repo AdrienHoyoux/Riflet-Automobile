@@ -10,7 +10,7 @@ from garage.models import CustomerReview, NewsArticle, Service, SiteSettings
 User = get_user_model()
 
 LOGO_URL = '/images/riflet-logo.jpg'
-CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'hoyouxadrien09@outlook.com')
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'hoyouxadrien@gmail.com')
 GOOGLE_MAPS_URL = (
     'https://www.google.com/maps/search/?api=1&query='
     'Riflet+Automobile+Avenue+de+Norv%C3%A8ge+3+4960+Malmedy'

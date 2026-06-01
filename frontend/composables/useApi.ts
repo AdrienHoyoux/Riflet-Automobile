@@ -56,8 +56,8 @@ export async function fetchReviews() {
 }
 
 export async function submitContact(form: ContactFormData) {
-  const apiBase = useApiBase()
-  return $fetch<{ detail: string }>(`${apiBase}/api/contact/`, {
+  // Même origine → Nitro → backend (Traefik route /api/* vers Django, pas Nuxt)
+  return $fetch<{ detail: string }>('/contact/submit', {
     method: 'POST',
     body: form,
   })

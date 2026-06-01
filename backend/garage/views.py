@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings
+from .notifications import notify_contact_message
 from .serializers import (
     ContactMessageSerializer,
     CustomerReviewSerializer,
@@ -45,6 +46,10 @@ class NewsDetailView(generics.RetrieveAPIView):
 class ContactCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageSerializer
     queryset = ContactMessage.objects.all()
+
+    def perform_create(self, serializer):
+        contact = serializer.save()
+        notify_contact_message(contact)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

@@ -79,6 +79,32 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 | `/api/reviews/`       | GET     | Avis clients Google      |
 | `/api/contact/`       | POST    | Envoi formulaire contact |
 
+## Formulaire de contact — réception par e-mail
+
+Les messages sont **enregistrés dans l'admin Django** (`Messages de contact`) **et** envoyés par e-mail à `CONTACT_EMAIL`.
+
+Configurez SMTP dans `.env` (Gmail) :
+
+```env
+CONTACT_EMAIL=hoyouxadrien@gmail.com
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=hoyouxadrien@gmail.com
+EMAIL_HOST_PASSWORD=votre_mot_de_passe_application
+DEFAULT_FROM_EMAIL=hoyouxadrien@gmail.com
+```
+
+**Gmail** : créez un [mot de passe d'application](https://myaccount.google.com/apppasswords) (compte Google → Sécurité → validation en 2 étapes requise). Le mot de passe normal du compte ne fonctionne pas avec SMTP.
+
+Après modification du `.env` en production, redéployez le conteneur backend :
+
+```bash
+docker compose up -d --build backend
+```
+
+Vérifiez aussi le dossier **Courrier indésirable** de la boîte Outlook.
+
 ## Données initiales
 
 Les données proviennent des informations publiques du garage :
@@ -88,7 +114,7 @@ Les données proviennent des informations publiques du garage :
 
 Adresse : Avenue de Norvège 3, 4960 Malmedy  
 Téléphone : 080 39 99 81  
-E-mail : hoyouxadrien09@outlook.com
+E-mail : hoyouxadrien@gmail.com
 
 ### Avis Google
 
