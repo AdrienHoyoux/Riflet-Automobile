@@ -79,25 +79,17 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 | `/api/reviews/`       | GET     | Avis clients Google      |
 | `/api/contact/`       | POST    | Envoi formulaire contact |
 
-## Formulaire de contact — réception par e-mail
+## Formulaire de contact — réception par e-mail (SMTP)
 
 Les messages sont **enregistrés dans l'admin Django** (`Messages de contact`) **et** envoyés par e-mail à `CONTACT_EMAIL`.
 
-### Option A — Resend (recommandé sur VPS Hostinger)
+| Variable | Rôle |
+|----------|------|
+| `CONTACT_EMAIL` | Boîte qui **reçoit** les messages (+ affichée sur le site) |
+| `EMAIL_HOST_USER` | Compte SMTP qui **envoie** les notifications |
+| `DEFAULT_FROM_EMAIL` | Adresse affichée comme expéditeur |
 
-Les VPS Hostinger **bloquent souvent les ports SMTP** (587, 465). Resend utilise **HTTPS (port 443)**, jamais bloqué.
-
-1. Créez un compte sur [resend.com](https://resend.com)
-2. Ajoutez et vérifiez le domaine `hoyouxcorp.com` (DNS chez Hostinger)
-3. Créez une clé API et ajoutez dans les variables Docker :
-
-```env
-CONTACT_EMAIL=hoyouxadrien@gmail.com
-RESEND_API_KEY=re_xxxxxxxx
-RESEND_FROM_EMAIL=Riflet Automobile <noreply@hoyouxcorp.com>
-```
-
-### Option B — Gmail SMTP (peut être bloqué sur le VPS)
+**Actuellement** : adresse perso du développeur. **Plus tard** : remplacez par l'e-mail du garage.
 
 ```env
 CONTACT_EMAIL=hoyouxadrien@gmail.com
@@ -110,9 +102,16 @@ EMAIL_HOST_PASSWORD=mot_de_passe_application_sans_espaces
 DEFAULT_FROM_EMAIL=hoyouxadrien@gmail.com
 ```
 
-**Gmail** : [mot de passe d'application](https://myaccount.google.com/apppasswords) (sans espaces dans la variable).
+Pour passer à l'e-mail du garage (ex. `contact@hoyouxcorp.com` via Hostinger) :
 
-### Tester depuis le VPS
+1. Modifiez `CONTACT_EMAIL`, `EMAIL_HOST_USER` et `DEFAULT_FROM_EMAIL`
+2. Adaptez `EMAIL_HOST` / `EMAIL_PORT` (Hostinger : `smtp.hostinger.com`, port 465)
+3. Redémarrez le backend : `docker compose up -d --force-recreate backend`
+4. Relancez `python manage.py seed_data` pour mettre à jour l'e-mail affiché sur le site
+
+**Gmail** : [mot de passe d'application](https://myaccount.google.com/apppasswords) (sans espaces).
+
+### Tester
 
 ```bash
 docker exec -it riflet_backend python manage.py test_email

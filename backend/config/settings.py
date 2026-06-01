@@ -135,9 +135,6 @@ DEFAULT_FROM_EMAIL = os.getenv(
     EMAIL_HOST_USER or 'noreply@hoyouxcorp.com',
 )
 
-RESEND_API_KEY = os.getenv('RESEND_API_KEY', '').strip()
-RESEND_FROM_EMAIL = os.getenv('RESEND_FROM_EMAIL', '')
-
 if EMAIL_HOST:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 else:

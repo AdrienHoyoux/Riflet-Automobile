@@ -1,10 +1,7 @@
 import html
-import json
 import logging
 import os
 import socket
-import urllib.error
-import urllib.request
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -170,55 +167,6 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
 </html>"""
 
 
-def _send_via_resend(
-    subject: str,
-    text_body: str,
-    recipient: str,
-    reply_to: str,
-    html_body: str | None = None,
-) -> bool:
-    api_key = os.getenv('RESEND_API_KEY', '').strip()
-    if not api_key:
-        return False
-
-    from_email = os.getenv(
-        'RESEND_FROM_EMAIL',
-        settings.DEFAULT_FROM_EMAIL or 'Riflet Automobile <noreply@hoyouxcorp.com>',
-    )
-    payload: dict = {
-        'from': from_email,
-        'to': [recipient],
-        'reply_to': reply_to,
-        'subject': subject,
-        'text': text_body,
-    }
-    if html_body:
-        payload['html'] = html_body
-
-    request = urllib.request.Request(
-        'https://api.resend.com/emails',
-        data=json.dumps(payload).encode('utf-8'),
-        method='POST',
-        headers={
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-        },
-    )
-
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            response.read()
-        logger.info('Notification Resend envoyée à %s', recipient)
-        return True
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode('utf-8', errors='replace')
-        logger.error('Resend HTTP %s : %s', exc.code, detail)
-        return False
-    except Exception:
-        logger.exception('Échec envoi Resend')
-        return False
-
-
 def _send_via_smtp(
     subject: str,
     text_body: str,
@@ -252,16 +200,17 @@ def notify_contact_message(contact) -> bool:
         logger.warning('CONTACT_EMAIL non configuré — notification ignorée.')
         return False
 
-    subject, text_body, html_body = _contact_email_content(contact)
-    reply_to = contact.email
+    if not settings.EMAIL_HOST:
+        logger.warning(
+            'EMAIL_HOST non configuré — message #%s enregistré sans envoi e-mail.',
+            contact.pk,
+        )
+        return False
 
-    if os.getenv('RESEND_API_KEY', '').strip():
-        if _send_via_resend(subject, text_body, recipient, reply_to, html_body):
-            return True
-        logger.warning('Resend indisponible — tentative SMTP pour le message #%s', contact.pk)
+    subject, text_body, html_body = _contact_email_content(contact)
 
     try:
-        return _send_via_smtp(subject, text_body, recipient, reply_to, html_body)
+        return _send_via_smtp(subject, text_body, recipient, contact.email, html_body)
     except Exception:
         logger.exception(
             'Échec envoi e-mail pour le message de contact #%s', contact.pk
