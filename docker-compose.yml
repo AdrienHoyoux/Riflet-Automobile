@@ -1,6 +1,8 @@
 # Production (Hostinger VPS + Traefik)
 # Deploy via Docker Manager → Compose from URL :
 # https://github.com/AdrienHoyoux/Riflet-Automobile
+#
+# IMPORTANT : définir DOMAIN=hoyouxcorp.com dans les variables Hostinger
 
 services:
   db:
@@ -32,9 +34,9 @@ services:
       DATABASE_PORT: "3306"
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-hoyouxcorp.com,www.hoyouxcorp.com,backend}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://hoyouxcorp.com,https://www.hoyouxcorp.com}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://hoyouxcorp.com,https://www.hoyouxcorp.com}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
@@ -50,44 +52,40 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.riflet-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api.rule=(Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-api.tls.domains[0].main=hoyouxcorp.com
+      - traefik.http.routers.riflet-api.tls.domains[0].sans=www.hoyouxcorp.com
       - traefik.http.routers.riflet-api.priority=100
+      - traefik.http.routers.riflet-api.service=riflet-api
       - traefik.http.services.riflet-api.loadbalancer.server.port=8000
-      - traefik.http.routers.riflet-api-www.rule=Host(`www.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
-      - traefik.http.routers.riflet-api-www.entrypoints=websecure
-      - traefik.http.routers.riflet-api-www.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-api-www.priority=100
-      - traefik.http.services.riflet-api-www.loadbalancer.server.port=8000
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile.prod
       args:
-        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://${DOMAIN}}
-        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://${DOMAIN}}
+        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.com}
+        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.com}
     container_name: riflet_frontend
     restart: unless-stopped
     environment:
-      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://${DOMAIN}}
-      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://${DOMAIN}}
+      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.com}
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.com}
       NUXT_API_BASE_SERVER: http://backend:8000
     depends_on:
       - backend
     labels:
       - traefik.enable=true
-      - traefik.http.routers.riflet-web.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.riflet-web.rule=Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-web.tls.domains[0].main=hoyouxcorp.com
+      - traefik.http.routers.riflet-web.tls.domains[0].sans=www.hoyouxcorp.com
       - traefik.http.routers.riflet-web.priority=1
+      - traefik.http.routers.riflet-web.service=riflet-web
       - traefik.http.services.riflet-web.loadbalancer.server.port=3000
-      - traefik.http.routers.riflet-web-www.rule=Host(`www.${DOMAIN}`)
-      - traefik.http.routers.riflet-web-www.entrypoints=websecure
-      - traefik.http.routers.riflet-web-www.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-web-www.priority=1
-      - traefik.http.services.riflet-web-www.loadbalancer.server.port=3000
 
 volumes:
   mysql_data:
