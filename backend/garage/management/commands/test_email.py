@@ -1,8 +1,13 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
 
-from garage.notifications import _send_via_resend, check_smtp_connectivity
+from garage.models import ContactMessage
+from garage.notifications import (
+    _contact_email_content,
+    _send_via_resend,
+    _send_via_smtp,
+    check_smtp_connectivity,
+)
 
 
 class Command(BaseCommand):
@@ -32,14 +37,18 @@ class Command(BaseCommand):
                     'Essayez le port 465 (EMAIL_USE_SSL=True) ou Resend (RESEND_API_KEY).'
                 )
 
+        sample = ContactMessage(
+            name='Jean Dupont',
+            email='client@example.com',
+            phone='0470 12 34 56',
+            subject='Demande de rendez-vous',
+            message='Bonjour,\n\nJe souhaiterais prendre rendez-vous pour un entretien.\n\nMerci.',
+        )
+        subject, text_body, html_body = _contact_email_content(sample)
+
         if settings.RESEND_API_KEY:
             self.stdout.write('Envoi test via Resend...')
-            if _send_via_resend(
-                'Test Riflet Automobile',
-                'E-mail de test depuis le serveur de production.',
-                recipient,
-                recipient,
-            ):
+            if _send_via_resend(subject, text_body, recipient, sample.email, html_body):
                 self.stdout.write(self.style.SUCCESS('Resend : envoyé'))
                 return
             self.stdout.write(self.style.ERROR('Resend : échec'))
@@ -47,14 +56,9 @@ class Command(BaseCommand):
         if settings.EMAIL_HOST:
             self.stdout.write('Envoi test via SMTP...')
             try:
-                send_mail(
-                    'Test Riflet Automobile',
-                    'E-mail de test depuis le serveur de production.',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [recipient],
-                    fail_silently=False,
-                )
-                self.stdout.write(self.style.SUCCESS('SMTP : envoyé'))
+                if _send_via_smtp(subject, text_body, recipient, sample.email, html_body):
+                    self.stdout.write(self.style.SUCCESS('SMTP : envoyé'))
+                    return
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f'SMTP : échec — {exc}'))
         else:
