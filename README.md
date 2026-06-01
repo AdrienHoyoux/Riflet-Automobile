@@ -83,27 +83,40 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 
 Les messages sont **enregistrés dans l'admin Django** (`Messages de contact`) **et** envoyés par e-mail à `CONTACT_EMAIL`.
 
-Configurez SMTP dans `.env` (Gmail) :
+### Option A — Resend (recommandé sur VPS Hostinger)
+
+Les VPS Hostinger **bloquent souvent les ports SMTP** (587, 465). Resend utilise **HTTPS (port 443)**, jamais bloqué.
+
+1. Créez un compte sur [resend.com](https://resend.com)
+2. Ajoutez et vérifiez le domaine `hoyouxcorp.com` (DNS chez Hostinger)
+3. Créez une clé API et ajoutez dans les variables Docker :
+
+```env
+CONTACT_EMAIL=hoyouxadrien@gmail.com
+RESEND_API_KEY=re_xxxxxxxx
+RESEND_FROM_EMAIL=Riflet Automobile <noreply@hoyouxcorp.com>
+```
+
+### Option B — Gmail SMTP (peut être bloqué sur le VPS)
 
 ```env
 CONTACT_EMAIL=hoyouxadrien@gmail.com
 EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
+EMAIL_PORT=465
+EMAIL_USE_TLS=False
+EMAIL_USE_SSL=True
 EMAIL_HOST_USER=hoyouxadrien@gmail.com
-EMAIL_HOST_PASSWORD=votre_mot_de_passe_application
+EMAIL_HOST_PASSWORD=mot_de_passe_application_sans_espaces
 DEFAULT_FROM_EMAIL=hoyouxadrien@gmail.com
 ```
 
-**Gmail** : créez un [mot de passe d'application](https://myaccount.google.com/apppasswords) (compte Google → Sécurité → validation en 2 étapes requise). Le mot de passe normal du compte ne fonctionne pas avec SMTP.
+**Gmail** : [mot de passe d'application](https://myaccount.google.com/apppasswords) (sans espaces dans la variable).
 
-Après modification du `.env` en production, redéployez le conteneur backend :
+### Tester depuis le VPS
 
 ```bash
-docker compose up -d --build backend
+docker exec -it riflet_backend python manage.py test_email
 ```
-
-Vérifiez aussi le dossier **Courrier indésirable** de la boîte Outlook.
 
 ## Données initiales
 
