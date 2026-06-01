@@ -52,6 +52,7 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
+      - traefik.docker.network=riflet_web
       - traefik.http.routers.riflet-api.rule=(Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
@@ -78,6 +79,7 @@ services:
       - backend
     labels:
       - traefik.enable=true
+      - traefik.docker.network=riflet_web
       - traefik.http.routers.riflet-web.rule=Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
@@ -90,3 +92,7 @@ services:
 volumes:
   mysql_data:
   media_data:
+
+networks:
+  default:
+    name: riflet_web
