@@ -3,10 +3,11 @@
     <div class="absolute inset-0">
       <img
         :src="heroImage"
-        alt=""
-        class="hero-image h-full w-full object-cover opacity-50"
+        alt="Volvo — garage automobile toutes marques"
+        class="hero-image h-full w-full object-cover object-[center_40%] brightness-110 saturate-110"
       >
-      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/85 to-ink/50" />
+      <div class="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/55 via-45% to-ink/15" />
+      <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent sm:hidden" />
     </div>
 
     <div class="container-custom relative py-24 sm:py-32 lg:py-40">

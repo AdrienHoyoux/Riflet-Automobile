@@ -16,7 +16,7 @@ GOOGLE_MAPS_URL = (
     'Riflet+Automobile+Avenue+de+Norv%C3%A8ge+3+4960+Malmedy'
 )
 HERO_URL = (
-    'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8'
+    'https://images.unsplash.com/photo-1678120958515-ad620ef2b0c9'
     '?auto=format&fit=crop&w=1920&q=80'
 )
 NEWS_IMAGE_PRIMARY = (
