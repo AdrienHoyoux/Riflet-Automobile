@@ -1,5 +1,5 @@
 <template>
-  <form class="space-y-5" @submit.prevent="handleSubmit">
+  <form class="space-y-5" novalidate @submit.prevent="handleSubmit">
     <div class="grid gap-5 sm:grid-cols-2">
       <div>
         <label for="name" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import type { ContactFormData } from '~/types/api'
+import { formatApiErrors } from '~/utils/formErrors'
 import { isValidPhone, PHONE_REGEX } from '~/utils/phone'
 
 const { t } = useI18n()
@@ -103,13 +104,61 @@ const form = reactive<ContactFormData>({
   message: '',
 })
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function validateForm(): string | null {
+  if (!form.name.trim()) {
+    return t('contact.form.nameRequired')
+  }
+  if (!form.email.trim()) {
+    return t('contact.form.emailRequired')
+  }
+  if (!EMAIL_REGEX.test(form.email.trim())) {
+    return t('contact.form.emailInvalid')
+  }
+  if (!isValidPhone(form.phone)) {
+    return t('contact.form.phoneInvalid')
+  }
+  if (!form.subject.trim()) {
+    return t('contact.form.subjectRequired')
+  }
+  if (form.message.trim().length < 10) {
+    return t('contact.form.messageTooShort')
+  }
+  return null
+}
+
+function getSubmitErrorMessage(err: unknown): string {
+  const fetchErr = err as {
+    message?: string
+    statusCode?: number
+    data?: unknown
+  }
+
+  const fromBody = formatApiErrors(fetchErr.data)
+  if (fromBody) {
+    return fromBody
+  }
+
+  if (typeof fetchErr.message === 'string' && fetchErr.message.trim()) {
+    return fetchErr.message
+  }
+
+  if (fetchErr.statusCode && fetchErr.statusCode >= 500) {
+    return t('contact.form.serverError')
+  }
+
+  return t('contact.form.error')
+}
+
 async function handleSubmit() {
   loading.value = true
   successMessage.value = ''
   errorMessage.value = ''
 
-  if (!isValidPhone(form.phone)) {
-    errorMessage.value = t('contact.form.phoneInvalid')
+  const validationError = validateForm()
+  if (validationError) {
+    errorMessage.value = validationError
     loading.value = false
     return
   }
@@ -123,11 +172,7 @@ async function handleSubmit() {
     form.subject = ''
     form.message = ''
   } catch (err: unknown) {
-    const fetchErr = err as { data?: { message?: string; detail?: string } }
-    errorMessage.value =
-      fetchErr.data?.message ||
-      fetchErr.data?.detail ||
-      t('contact.form.error')
+    errorMessage.value = getSubmitErrorMessage(err)
   } finally {
     loading.value = false
   }
