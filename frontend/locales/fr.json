@@ -77,7 +77,8 @@
       "submit": "Envoyer le message",
       "sending": "Envoi en cours...",
       "success": "Votre message a bien été envoyé. Merci !",
-      "error": "Une erreur est survenue. Veuillez réessayer."
+      "error": "Une erreur est survenue. Veuillez réessayer.",
+      "phoneInvalid": "Numéro de téléphone invalide. Exemples : 080 39 99 81 (BE), 06 12 34 56 78 (FR), 621 123 456 (LU), 06 12345678 (NL)."
     },
     "info_title": "Coordonnées",
     "call_us": "Appelez-nous"

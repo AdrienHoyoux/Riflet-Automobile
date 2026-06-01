@@ -35,6 +35,7 @@
         id="phone"
         v-model="form.phone"
         type="tel"
+        :pattern="phonePattern"
         class="input-field"
       >
     </div>
@@ -85,11 +86,14 @@
 
 <script setup lang="ts">
 import type { ContactFormData } from '~/types/api'
+import { isValidPhone, PHONE_REGEX } from '~/utils/phone'
 
 const { t } = useI18n()
 const loading = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
+
+const phonePattern = PHONE_REGEX.source
 
 const form = reactive<ContactFormData>({
   name: '',
@@ -103,6 +107,12 @@ async function handleSubmit() {
   loading.value = true
   successMessage.value = ''
   errorMessage.value = ''
+
+  if (!isValidPhone(form.phone)) {
+    errorMessage.value = t('contact.form.phoneInvalid')
+    loading.value = false
+    return
+  }
 
   try {
     await submitContact(form)

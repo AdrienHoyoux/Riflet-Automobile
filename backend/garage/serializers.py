@@ -1,6 +1,23 @@
+import re
+
 from rest_framework import serializers
 
 from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings
+
+PHONE_REGEX = re.compile(
+    r'^(?:'
+    r'\+32[\s./-]?(?:\d[\s./-]?){8,12}|'
+    r'0032[\s./-]?(?:\d[\s./-]?){8,12}|'
+    r'\+33[\s./-]?(?:\d[\s./-]?){8,11}|'
+    r'0033[\s./-]?(?:\d[\s./-]?){8,11}|'
+    r'\+352[\s./-]?(?:\d[\s./-]?){6,11}|'
+    r'00352[\s./-]?(?:\d[\s./-]?){6,11}|'
+    r'\+31[\s./-]?(?:\d[\s./-]?){8,11}|'
+    r'0031[\s./-]?(?:\d[\s./-]?){8,11}|'
+    r'0[\s./-]?(?:\d[\s./-]?){8,11}|'
+    r'[26]\d[\s./-]?(?:\d[\s./-]?){6,9}'
+    r')$'
+)
 
 
 class SiteSettingsSerializer(serializers.ModelSerializer):
@@ -74,6 +91,15 @@ class ContactMessageSerializer(serializers.ModelSerializer):
     def validate_message(self, value):
         if len(value.strip()) < 10:
             raise serializers.ValidationError('Le message doit contenir au moins 10 caractères.')
+        return value
+
+    def validate_phone(self, value):
+        value = value.strip()
+        if value and not PHONE_REGEX.match(value):
+            raise serializers.ValidationError(
+                'Numéro de téléphone invalide. Exemples : 080 39 99 81 (BE), '
+                '06 12 34 56 78 (FR), 621 123 456 (LU), 06 12345678 (NL).'
+            )
         return value
 
 
