@@ -2,7 +2,8 @@
 # Deploy via Docker Manager → Compose from URL :
 # https://github.com/AdrienHoyoux/Riflet-Automobile
 #
-# IMPORTANT : définir DOMAIN=hoyouxcorp.com dans les variables Hostinger
+# Traefik (host mode) : ajouter dans command :
+#   --providers.docker.network=riflet-automobile_default
 
 services:
   db:
@@ -52,12 +53,11 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=riflet_web
+      - traefik.docker.network=riflet-automobile_default
       - traefik.http.routers.riflet-api.rule=(Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
+      - traefik.http.routers.riflet-api.tls=true
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-api.tls.domains[0].main=hoyouxcorp.com
-      - traefik.http.routers.riflet-api.tls.domains[0].sans=www.hoyouxcorp.com
       - traefik.http.routers.riflet-api.priority=100
       - traefik.http.routers.riflet-api.service=riflet-api
       - traefik.http.services.riflet-api.loadbalancer.server.port=8000
@@ -79,12 +79,11 @@ services:
       - backend
     labels:
       - traefik.enable=true
-      - traefik.docker.network=riflet_web
+      - traefik.docker.network=riflet-automobile_default
       - traefik.http.routers.riflet-web.rule=Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
+      - traefik.http.routers.riflet-web.tls=true
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt
-      - traefik.http.routers.riflet-web.tls.domains[0].main=hoyouxcorp.com
-      - traefik.http.routers.riflet-web.tls.domains[0].sans=www.hoyouxcorp.com
       - traefik.http.routers.riflet-web.priority=1
       - traefik.http.routers.riflet-web.service=riflet-web
       - traefik.http.services.riflet-web.loadbalancer.server.port=3000
@@ -95,4 +94,4 @@ volumes:
 
 networks:
   default:
-    name: riflet_web
+    name: riflet-automobile_default
