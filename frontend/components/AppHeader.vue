@@ -85,6 +85,7 @@ const mobileOpen = ref(false)
 const navLinks = [
   { to: '/', label: 'nav.home' },
   { to: '/services', label: 'nav.services' },
+  { to: '/vehicules', label: 'nav.vehicles' },
   { to: '/actualites', label: 'nav.news' },
   { to: '/a-propos', label: 'nav.about' },
   { to: '/contact', label: 'nav.contact' },

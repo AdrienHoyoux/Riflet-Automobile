@@ -49,6 +49,29 @@
       </div>
     </section>
 
+    <section v-if="vehicles?.length" ref="vehiclesSection" class="py-16 lg:py-24">
+      <div class="container-custom">
+        <div class="flex flex-wrap items-end justify-between gap-6 border-b-2 border-ink pb-6">
+          <div>
+            <p class="anim-label section-label">{{ $t('nav.vehicles') }}</p>
+            <h2 class="anim-title section-title mt-2">{{ $t('home.vehicles_title') }}</h2>
+            <p class="anim-subtitle section-subtitle">{{ $t('home.vehicles_subtitle') }}</p>
+          </div>
+          <NuxtLinkLocale to="/vehicules" class="anim-cta btn-secondary">
+            {{ $t('home.view_all') }}
+          </NuxtLinkLocale>
+        </div>
+
+        <div ref="vehiclesGrid" class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <VehicleCard
+            v-for="vehicle in vehicles?.slice(0, 3)"
+            :key="vehicle.id"
+            :vehicle="vehicle"
+          />
+        </div>
+      </div>
+    </section>
+
     <ReviewsSection v-if="reviews?.length" :reviews="reviews" />
 
     <section ref="whySection" class="py-16 lg:py-24">
@@ -97,6 +120,7 @@
 
 <script setup lang="ts">
 import type { SiteSettings } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { LOGO_URL, VOLVO_IMAGES } from '~/utils/images'
 
 const { t } = useI18n()
@@ -106,23 +130,26 @@ const logoUrl = useLogoUrl(settings)
 
 const servicesSection = ref<HTMLElement | null>(null)
 const newsSection = ref<HTMLElement | null>(null)
+const vehiclesSection = ref<HTMLElement | null>(null)
 const whySection = ref<HTMLElement | null>(null)
 const ctaSection = ref<HTMLElement | null>(null)
 const servicesGrid = ref<HTMLElement | null>(null)
 const newsGrid = ref<HTMLElement | null>(null)
+const vehiclesGrid = ref<HTMLElement | null>(null)
 
 const { revealSection, revealWhySection, staggerIn } = useGsap()
 
-const [{ data: services }, { data: news }, { data: reviews }] = await Promise.all([
+const [{ data: services }, { data: news }, { data: reviews }, { data: vehicles }] = await Promise.all([
   useAsyncData('home-services', fetchServices),
   useAsyncData('home-news', fetchNews),
   useAsyncData('home-reviews', fetchReviews),
+  useAsyncData('home-vehicles', fetchVehicles),
 ])
 
 useSeoMetaTags(
   t('seo.home_title'),
   t('seo.home_description'),
-  settings?.value?.hero_image_url || VOLVO_IMAGES.hero,
+  resolveImageUrl(settings?.value?.hero_image_url) || VOLVO_IMAGES.hero,
 )
 
 useHead({
@@ -158,6 +185,7 @@ const whyItems = computed(() => [
 onMounted(() => {
   revealSection(servicesSection.value)
   revealSection(newsSection.value)
+  revealSection(vehiclesSection.value)
   revealWhySection(whySection.value)
   revealSection(ctaSection.value)
 
@@ -166,6 +194,9 @@ onMounted(() => {
   }
   if (newsGrid.value) {
     staggerIn(newsGrid.value.children, { trigger: newsGrid.value })
+  }
+  if (vehiclesGrid.value) {
+    staggerIn(vehiclesGrid.value.children, { trigger: vehiclesGrid.value })
   }
 })
 </script>

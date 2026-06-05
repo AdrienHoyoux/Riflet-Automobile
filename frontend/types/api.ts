@@ -75,6 +75,27 @@ export interface PaginatedResponse<T> {
   results: T[]
 }
 
+export interface UsedVehicle {
+  id: number
+  slug: string
+  brand: string
+  model_name: string
+  year: number
+  mileage: number
+  fuel_type: string
+  transmission: string
+  price: string | number
+  title_fr: string
+  title_de: string
+  title_nl: string
+  description_fr: string
+  description_de: string
+  description_nl: string
+  image: string | null
+  is_sold: boolean
+  order: number
+}
+
 export interface ContactFormData {
   name: string
   email: string

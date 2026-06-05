@@ -3,6 +3,7 @@
     "home": "Startseite",
     "services": "Dienstleistungen",
     "news": "Aktuelles",
+    "vehicles": "Gebrauchtwagen",
     "about": "Über uns",
     "contact": "Kontakt"
   },
@@ -17,6 +18,8 @@
     "services_subtitle": "Wartung, Reparatur und Fahrzeugverkauf aller Marken in Malmedy.",
     "news_title": "Aktuelles",
     "news_subtitle": "Die neuesten Nachrichten aus der Werkstatt.",
+    "vehicles_title": "Gebrauchtwagen",
+    "vehicles_subtitle": "Unsere Auswahl an verfügbaren Fahrzeugen in Malmedy.",
     "view_all": "Alle anzeigen",
     "read_more": "Weiterlesen",
     "why_title": "Warum uns wählen?",
@@ -46,6 +49,16 @@
     "subtitle": "Bleiben Sie informiert über die neuesten Angebote und Neuigkeiten.",
     "back": "Zurück zu Aktuelles",
     "published": "Veröffentlicht am"
+  },
+  "vehicles": {
+    "title": "Gebrauchtwagen",
+    "subtitle": "Entdecken Sie unsere geprüften Fahrzeuge.",
+    "empty": "Derzeit keine Fahrzeuge verfügbar.",
+    "details": "Beschreibung",
+    "contact_cta": "Informationen anfordern",
+    "sold": "Verkauft",
+    "fuel": { "petrol": "Benzin", "diesel": "Diesel", "electric": "Elektrisch", "hybrid": "Hybrid", "lpg": "LPG" },
+    "transmission": { "manual": "Manuell", "automatic": "Automatik" }
   },
   "about": {
     "title": "Über uns",
@@ -106,6 +119,8 @@
     "about_title": "Über uns — Riflet Automobile",
     "about_description": "Riflet Automobile, Ihre markenunabhängige Werkstatt in Malmedy in den belgischen Ardennen.",
     "contact_title": "Kontakt — Riflet Automobile",
-    "contact_description": "Kontaktieren Sie Riflet Automobile in Malmedy. Avenue de Norvège 3 — 080 39 99 81."
+    "contact_description": "Kontaktieren Sie Riflet Automobile in Malmedy. Avenue de Norvège 3 — 080 39 99 81.",
+    "vehicles_title": "Gebrauchtwagen — Riflet Automobile",
+    "vehicles_description": "Gebrauchtwagen bei Riflet Automobile in Malmedy."
   }
 }

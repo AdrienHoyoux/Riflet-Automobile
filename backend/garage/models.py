@@ -151,6 +151,55 @@ class ContactMessage(models.Model):
         return f'{self.name} — {self.subject}'
 
 
+class UsedVehicle(TranslatedModelMixin):
+    FUEL_CHOICES = [
+        ('petrol', 'Essence'),
+        ('diesel', 'Diesel'),
+        ('electric', 'Électrique'),
+        ('hybrid', 'Hybride'),
+        ('lpg', 'LPG'),
+    ]
+    TRANSMISSION_CHOICES = [
+        ('manual', 'Manuelle'),
+        ('automatic', 'Automatique'),
+    ]
+
+    slug = models.SlugField('Slug', max_length=255, unique=True, blank=True)
+    brand = models.CharField('Marque', max_length=80)
+    model_name = models.CharField('Modèle', max_length=80)
+    year = models.PositiveIntegerField('Année')
+    mileage = models.PositiveIntegerField('Kilométrage (km)')
+    fuel_type = models.CharField('Carburant', max_length=20, choices=FUEL_CHOICES, default='diesel')
+    transmission = models.CharField('Boîte', max_length=20, choices=TRANSMISSION_CHOICES, default='manual')
+    price = models.DecimalField('Prix (€)', max_digits=12, decimal_places=2)
+    image = models.ImageField('Image', upload_to='vehicles/', blank=True, null=True)
+    image_url = models.URLField('URL image externe', blank=True)
+    is_active = models.BooleanField('Visible sur le site', default=True)
+    is_sold = models.BooleanField('Vendu', default=False)
+    order = models.PositiveIntegerField('Ordre', default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Véhicule d\'occasion'
+        verbose_name_plural = 'Véhicules d\'occasion'
+
+    def __str__(self):
+        return f'{self.brand} {self.model_name} ({self.year})'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(f'{self.brand}-{self.model_name}-{self.year}') or 'vehicule'
+            slug = base
+            counter = 1
+            while UsedVehicle.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
 class CustomerReview(models.Model):
     SOURCE_CHOICES = [
         ('google', 'Google'),
@@ -175,3 +224,26 @@ class CustomerReview(models.Model):
 
     def __str__(self):
         return f'{self.author_name} ({self.rating}/5)'
+
+
+class AdminMfaDevice(models.Model):
+    """Authentification TOTP (Google Authenticator, etc.) pour l'admin du site."""
+
+    user = models.OneToOneField(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='mfa_device',
+        verbose_name='Utilisateur',
+    )
+    secret = models.CharField('Secret TOTP', max_length=64)
+    is_enabled = models.BooleanField('Activée', default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField('Confirmée le', null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'MFA administrateur'
+        verbose_name_plural = 'MFA administrateurs'
+
+    def __str__(self):
+        status = 'activée' if self.is_enabled else 'en attente'
+        return f'MFA {self.user.username} ({status})'

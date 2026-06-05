@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings
+from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
 from .notifications import notify_contact_message
 from .serializers import (
     ContactMessageSerializer,
@@ -11,6 +11,7 @@ from .serializers import (
     NewsArticleListSerializer,
     ServiceSerializer,
     SiteSettingsSerializer,
+    UsedVehicleSerializer,
 )
 
 
@@ -65,4 +66,19 @@ class ReviewListView(generics.ListAPIView):
     serializer_class = CustomerReviewSerializer
 
     def get_queryset(self):
-        return CustomerReview.objects.filter(is_published=True, source='google')
+        return CustomerReview.objects.filter(is_published=True).order_by('order')[:6]
+
+
+class VehicleListView(generics.ListAPIView):
+    serializer_class = UsedVehicleSerializer
+
+    def get_queryset(self):
+        return UsedVehicle.objects.filter(is_active=True)
+
+
+class VehicleDetailView(generics.RetrieveAPIView):
+    serializer_class = UsedVehicleSerializer
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        return UsedVehicle.objects.filter(is_active=True)

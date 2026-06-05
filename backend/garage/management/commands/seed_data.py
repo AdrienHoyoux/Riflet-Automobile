@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from garage.models import CustomerReview, NewsArticle, Service, SiteSettings
+from garage.models import CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
 
 User = get_user_model()
 
@@ -54,6 +54,7 @@ class Command(BaseCommand):
         self._create_services()
         self._create_news()
         self._create_reviews()
+        self._create_vehicles()
         self.stdout.write(self.style.SUCCESS('Données initialisées avec succès.'))
 
     def _create_admin(self):
@@ -400,3 +401,61 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(f'{len(reviews)} avis Google créés/mis à jour.')
+
+    def _create_vehicles(self):
+        vehicles = [
+            {
+                'slug': 'citroen-berlingo-2019',
+                'brand': 'Citroën',
+                'model_name': 'Berlingo',
+                'year': 2019,
+                'mileage': 98500,
+                'fuel_type': 'diesel',
+                'transmission': 'manual',
+                'price': '12900.00',
+                'title_fr': 'Citroën Berlingo — Utilitaire',
+                'title_de': 'Citroën Berlingo — Nutzfahrzeug',
+                'title_nl': 'Citroën Berlingo — Bedrijfsvoertuig',
+                'description_fr': (
+                    'Citroën Berlingo utilitaire en excellent état. Idéal pour artisans '
+                    'et professionnels. Contrôle technique OK, historique disponible.'
+                ),
+                'description_de': (
+                    'Citroën Berlingo Nutzfahrzeug in ausgezeichnetem Zustand. '
+                    'Ideal für Handwerker und Profis.'
+                ),
+                'description_nl': (
+                    'Citroën Berlingo bedrijfsvoertuig in uitstekende staat. '
+                    'Ideaal voor vakmensen en professionals.'
+                ),
+                'image_url': CITROEN_BERLINGO_IMAGE,
+            },
+            {
+                'slug': 'volkswagen-golf-2017',
+                'brand': 'Volkswagen',
+                'model_name': 'Golf',
+                'year': 2017,
+                'mileage': 112000,
+                'fuel_type': 'diesel',
+                'transmission': 'manual',
+                'price': '11450.00',
+                'title_fr': 'Volkswagen Golf — Berline compacte',
+                'title_de': 'Volkswagen Golf — Kompaktlimousine',
+                'title_nl': 'Volkswagen Golf — Compacte sedan',
+                'description_fr': (
+                    'Volkswagen Golf diesel, entretien suivi, climatisation, '
+                    'parfaite pour un usage quotidien.'
+                ),
+                'description_de': 'Volkswagen Golf Diesel, gewartet, Klimaanlage.',
+                'description_nl': 'Volkswagen Golf diesel, onderhouden, airconditioning.',
+                'image_url': SERVICE_IMAGE_USED_CARS,
+            },
+        ]
+
+        for index, data in enumerate(vehicles):
+            UsedVehicle.objects.update_or_create(
+                slug=data['slug'],
+                defaults={**data, 'is_active': True, 'is_sold': False, 'order': index},
+            )
+
+        self.stdout.write(f'{len(vehicles)} véhicules d\'occasion créés/mis à jour.')

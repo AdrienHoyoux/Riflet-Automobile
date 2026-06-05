@@ -3,6 +3,7 @@
     "home": "Accueil",
     "services": "Services",
     "news": "Actualités",
+    "vehicles": "Occasions",
     "about": "À propos",
     "contact": "Contact"
   },
@@ -17,6 +18,8 @@
     "services_subtitle": "Entretien, réparation et vente de véhicules toutes marques à Malmedy.",
     "news_title": "Actualités",
     "news_subtitle": "Les dernières nouvelles du garage.",
+    "vehicles_title": "Véhicules d'occasion",
+    "vehicles_subtitle": "Notre sélection de voitures disponibles à Malmedy.",
     "view_all": "Voir tout",
     "read_more": "Lire la suite",
     "why_title": "Pourquoi nous choisir ?",
@@ -46,6 +49,25 @@
     "subtitle": "Restez informé des dernières offres et nouveautés du garage.",
     "back": "Retour aux actualités",
     "published": "Publié le"
+  },
+  "vehicles": {
+    "title": "Véhicules d'occasion",
+    "subtitle": "Découvrez notre sélection de véhicules contrôlés et prêts à rouler.",
+    "empty": "Aucun véhicule disponible pour le moment. Contactez-nous pour votre recherche.",
+    "details": "Description",
+    "contact_cta": "Demander des informations",
+    "sold": "Vendu",
+    "fuel": {
+      "petrol": "Essence",
+      "diesel": "Diesel",
+      "electric": "Électrique",
+      "hybrid": "Hybride",
+      "lpg": "LPG"
+    },
+    "transmission": {
+      "manual": "Manuelle",
+      "automatic": "Automatique"
+    }
   },
   "about": {
     "title": "À propos",
@@ -106,6 +128,8 @@
     "about_title": "À propos — Riflet Automobile",
     "about_description": "Riflet Automobile, votre garage toutes marques de confiance à Malmedy, au cœur des Ardennes belges.",
     "contact_title": "Contact — Riflet Automobile",
-    "contact_description": "Contactez Riflet Automobile à Malmedy. Avenue de Norvège 3 — 080 39 99 81."
+    "contact_description": "Contactez Riflet Automobile à Malmedy. Avenue de Norvège 3 — 080 39 99 81.",
+    "vehicles_title": "Véhicules d'occasion — Riflet Automobile",
+    "vehicles_description": "Voitures d'occasion disponibles chez Riflet Automobile à Malmedy."
   }
 }

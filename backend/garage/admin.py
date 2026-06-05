@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings
+from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
 
 
 @admin.register(SiteSettings)
@@ -86,6 +86,21 @@ class CustomerReviewAdmin(admin.ModelAdmin):
     list_filter = ('source', 'is_published', 'rating')
     search_fields = ('author_name', 'content')
     ordering = ('order', '-review_date')
+
+
+@admin.register(UsedVehicle)
+class UsedVehicleAdmin(admin.ModelAdmin):
+    list_display = ('brand', 'model_name', 'year', 'price', 'is_active', 'is_sold', 'order')
+    list_editable = ('is_active', 'is_sold', 'order')
+    list_filter = ('is_active', 'is_sold', 'fuel_type', 'brand')
+    search_fields = ('brand', 'model_name', 'title_fr')
+    prepopulated_fields = {'slug': ('title_fr',)}
+    fieldsets = (
+        ('Véhicule', {'fields': ('brand', 'model_name', 'year', 'mileage', 'fuel_type', 'transmission', 'price')}),
+        ('Titres', {'fields': ('title_fr', 'title_de', 'title_nl')}),
+        ('Descriptions', {'fields': ('description_fr', 'description_de', 'description_nl')}),
+        ('Affichage', {'fields': ('slug', 'image', 'image_url', 'is_active', 'is_sold', 'order')}),
+    )
 
 
 @admin.register(ContactMessage)

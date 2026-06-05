@@ -76,6 +76,7 @@
 
 <script setup lang="ts">
 import type { SiteSettings } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { VOLVO_IMAGES } from '~/utils/images'
 
 const { t } = useI18n()
@@ -94,7 +95,7 @@ const aboutText = computed(() => {
 })
 
 const aboutImage = computed(() =>
-  settings?.value?.hero_image_url || VOLVO_IMAGES.about,
+  resolveImageUrl(settings?.value?.hero_image_url) || VOLVO_IMAGES.about,
 )
 
 const mapCoords = computed(() => {

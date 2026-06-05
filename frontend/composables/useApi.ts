@@ -5,6 +5,7 @@ import type {
   PaginatedResponse,
   Service,
   SiteSettings,
+  UsedVehicle,
 } from '~/types/api'
 
 export function useApiBase() {
@@ -53,6 +54,17 @@ export async function fetchReviews() {
   const apiBase = useApiBase()
   const data = await $fetch<PaginatedResponse<CustomerReview> | CustomerReview[]>(`${apiBase}/api/reviews/`)
   return Array.isArray(data) ? data : data.results
+}
+
+export async function fetchVehicles() {
+  const apiBase = useApiBase()
+  const data = await $fetch<PaginatedResponse<UsedVehicle> | UsedVehicle[]>(`${apiBase}/api/vehicles/`)
+  return Array.isArray(data) ? data : data.results
+}
+
+export async function fetchVehicle(slug: string) {
+  const apiBase = useApiBase()
+  return $fetch<UsedVehicle>(`${apiBase}/api/vehicles/${slug}/`)
 }
 
 export async function submitContact(form: ContactFormData) {

@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import type { SiteSettings } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { VOLVO_IMAGES } from '~/utils/images'
 
 const settings = inject<Ref<SiteSettings | null>>('siteSettings')
@@ -51,7 +52,7 @@ const tagline = computed(() => {
 })
 
 const heroImage = computed(() =>
-  settings?.value?.hero_image_url || VOLVO_IMAGES.hero,
+  resolveImageUrl(settings?.value?.hero_image_url) || VOLVO_IMAGES.hero,
 )
 
 onMounted(() => {

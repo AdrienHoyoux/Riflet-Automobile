@@ -11,8 +11,10 @@ Application web full-stack pour le garage **Riflet Automobile** à Malmedy (Belg
 
 - Site vitrine responsive avec animations GSAP
 - Multilingue : français (par défaut), allemand, néerlandais
-- Services du garage modifiables via l'admin Django
+- Services du garage modifiables via l'admin
 - Actualités publiables par le client (admin)
+- **Véhicules d'occasion** — catalogue public + gestion depuis l'admin
+- **Panneau d'administration** intégré au site (`/admin/login`)
 - Formulaire de contact
 - Logo officiel (photo de profil Facebook) dans l'en-tête, le hero et le pied de page
 - Section avis clients Google sur la page d'accueil
@@ -35,7 +37,8 @@ docker compose -f docker-compose.dev.yml up --build
 |-----------|------------------------------------------|
 | Site web  | http://localhost:3000                    |
 | API       | http://localhost:8000/api/               |
-| Admin     | http://localhost:8000/admin/             |
+| Admin site| http://localhost:3000/admin/login        |
+| Admin Django | http://localhost:8000/admin/          |
 
 **Identifiants admin par défaut** (modifiables dans `.env`) :
 - Utilisateur : `admin`
@@ -43,13 +46,32 @@ docker compose -f docker-compose.dev.yml up --build
 
 ## Administration du contenu
 
-Le client peut mettre à jour son site via l'interface Django Admin :
+Le client peut mettre à jour son site via le **panneau d'administration** du site (recommandé) :
 
-1. **Paramètres du site** — coordonnées, horaires, textes « À propos », logo, note Google
-2. **Services** — ajouter/modifier/désactiver les prestations
-3. **Actualités** — publier des articles multilingues avec images
-4. **Avis clients** — gérer les avis Google affichés sur l'accueil
-5. **Messages de contact** — consulter les demandes reçues
+**URL** : `/admin/login` (ex. `http://localhost:3000/admin/login`)
+
+Utilisez les identifiants définis dans `.env` (`ADMIN_USERNAME` / `ADMIN_PASSWORD`). L'utilisateur doit être **staff** (créé automatiquement par `seed_data`).
+
+| Section | Contenu modifiable |
+|---------|-------------------|
+| **Paramètres** | Coordonnées, horaires, textes « À propos », URLs des photos (logo, hero) |
+| **Actualités** | Créer, modifier, publier des articles multilingues |
+| **Véhicules** | Ajouter des voitures d'occasion (marque, prix, km, photo, description FR/DE/NL) |
+| **Avis** | Ajouter des avis à la main, choisir les 6 de l'accueil (sync Google optionnelle, payante) |
+| **Messages** | Consulter les demandes reçues via le formulaire de contact |
+| **Sécurité** | Activer la MFA (Google Authenticator, etc.) via QR code |
+| **Comptes** | Créer ou supprimer des accès à l'administration du site |
+
+### Authentification à deux facteurs (MFA)
+
+1. Connectez-vous à `/admin/login`
+2. Allez dans **Sécurité** → **Configurer la MFA**
+3. Scannez le **QR code** avec Google Authenticator (ou équivalent)
+4. Saisissez le code à 6 chiffres pour confirmer
+
+Une fois activée, chaque connexion demande le mot de passe **puis** un code TOTP généré par l'application mobile.
+
+L'**admin Django** (`/admin/`) reste disponible pour les services et les réglages avancés.
 
 Chaque contenu éditorial possède des champs en **français**, **allemand** et **néerlandais**.
 
@@ -128,19 +150,15 @@ Adresse : Avenue de Norvège 3, 4960 Malmedy
 Téléphone : 080 39 99 81  
 E-mail : hoyouxadrien@gmail.com
 
-### Avis Google
+### Avis clients (gratuit, sans API)
 
-Des avis exemple sont chargés via `seed_data`. Pour synchroniser les vrais avis depuis Google :
+Dans **Admin → Avis** :
 
-1. Créer une clé [Google Places API (New)](https://developers.google.com/maps/documentation/places/web-service/get-api-key)
-2. Ajouter `GOOGLE_PLACES_API_KEY` dans `.env`
-3. Exécuter :
+1. **Ajouter un avis** — copiez nom, note et texte depuis Google Maps / Facebook (aucune API requise).
+2. Cochez jusqu'à **6 avis** et **Enregistrer la sélection** pour l'accueil.
+3. Renseignez le **bloc Google** (note moyenne, nombre total, lien Maps) à la main depuis votre fiche Google.
 
-```bash
-docker compose exec backend python manage.py sync_google_reviews
-```
-
-Les avis peuvent aussi être modifiés manuellement dans l'admin Django (**Avis clients**).
+**Option payante** : synchronisation automatique via `GOOGLE_PLACES_API_KEY` (Google Places API, facturation après le crédit mensuel). Bouton repliable dans l'admin ou commande `sync_google_reviews`.
 
 ## Développement local (sans Docker)
 
