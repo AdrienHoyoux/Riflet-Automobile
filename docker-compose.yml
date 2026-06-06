@@ -87,6 +87,13 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=riflet-automobile_default
+      # Panneau admin Nuxt (/admin/*) — priorité haute pour ne pas passer par Django
+      - traefik.http.routers.riflet-site-admin.rule=(Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)) && PathPrefix(`/admin`)
+      - traefik.http.routers.riflet-site-admin.entrypoints=websecure
+      - traefik.http.routers.riflet-site-admin.tls=true
+      - traefik.http.routers.riflet-site-admin.tls.certresolver=letsencrypt
+      - traefik.http.routers.riflet-site-admin.priority=200
+      - traefik.http.routers.riflet-site-admin.service=riflet-web
       - traefik.http.routers.riflet-web.rule=Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls=true

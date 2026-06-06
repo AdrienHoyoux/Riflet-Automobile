@@ -84,6 +84,8 @@ Identifiants : variables `ADMIN_USERNAME` et `ADMIN_PASSWORD` (Hostinger → Doc
 
 Si la MFA est activée : mot de passe puis code à 6 chiffres (Google Authenticator).
 
+> Si `/admin` affiche encore l'interface **Django** (écran bleu/gris), la prod utilise une **ancienne version** du `docker-compose.yml` qui envoyait `/admin` vers le backend. **Poussez le code sur GitHub** puis **Update** dans Docker Manager (rebuild obligatoire). Après mise à jour, `/admin` et `/admin/login` montrent le panneau Nuxt ; Django est uniquement sur `/django-admin/`.
+
 Chaque contenu éditorial possède des champs en **français**, **allemand** et **néerlandais**.
 
 ## Structure du projet
@@ -417,7 +419,68 @@ Les deux `MYSQL_PASSWORD` doivent être identiques. Le site : `https://rifletaut
 
 - **Logs** : ⋮ → View logs (par conteneur)
 - **Redémarrage** : ⋮ → Restart
-- **Mise à jour** : poussez sur GitHub → ⋮ → Update
+- **Mise à jour** : poussez sur GitHub → ⋮ → **Update**
+
+### Mise à jour depuis GitHub (terminal SSH)
+
+Deux façons de mettre à jour. **Ne mélangez pas** Docker Manager « Compose from URL » et un clone manuel sur le même VPS sans arrêter l'autre déploiement (sinon doublons de conteneurs).
+
+#### Option 1 — Docker Manager (sans SSH, le plus simple)
+
+1. Poussez vos changements sur GitHub (`git push`)
+2. hPanel → **Docker Manager** → `riflet-automobile` → **⋮** → **Update**
+3. Attendez la fin du build → **View logs** sur `riflet_backend`
+
+Hostinger retélécharge le dépôt et relance `docker compose up --build` avec vos variables d'environnement déjà enregistrées dans hPanel.
+
+#### Option 2 — Terminal SSH (clone Git sur le VPS)
+
+**Première fois** — cloner le projet et créer le `.env` :
+
+```bash
+ssh root@VOTRE_IP_VPS
+
+mkdir -p /var/www && cd /var/www
+git clone https://github.com/AdrienHoyoux/Riflet-Automobile.git
+cd Riflet-Automobile
+
+cp .env.production.example .env
+nano .env   # mots de passe, DJANGO_SECRET_KEY, ADMIN_PASSWORD, etc.
+
+docker compose -p riflet-automobile up -d --build
+```
+
+> Si le projet tourne déjà via Docker Manager, supprimez-le dans hPanel (ou arrêtez ses conteneurs) avant cette première installation manuelle, pour éviter deux stacks en parallèle.
+
+**Mises à jour suivantes** :
+
+```bash
+cd /var/www/Riflet-Automobile
+git pull origin main
+docker compose -p riflet-automobile up -d --build
+```
+
+**Vérifier** :
+
+```bash
+docker ps
+docker logs riflet_backend --tail 30
+```
+
+Les volumes (`mysql_data`, `media_data`) sont **conservés** : la base et les fichiers uploadés restent en place.
+
+**Repo privé** : configurez une clé SSH ou un token sur le VPS :
+
+```bash
+git clone git@github.com:AdrienHoyoux/Riflet-Automobile.git
+# ou : git clone https://TOKEN@github.com/AdrienHoyoux/Riflet-Automobile.git
+```
+
+**Trouver le dossier** si le projet a déjà été cloné ailleurs :
+
+```bash
+find /var /docker /root -name "docker-compose.yml" 2>/dev/null | xargs grep -l riflet_backend 2>/dev/null
+```
 
 ---
 
