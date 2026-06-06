@@ -35,9 +35,9 @@ services:
       DATABASE_PORT: "3306"
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-hoyouxcorp.com,www.hoyouxcorp.com,backend}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://hoyouxcorp.com,https://www.hoyouxcorp.com}
-      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://hoyouxcorp.com,https://www.hoyouxcorp.com}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-rifletautomobile.be,www.rifletautomobile.be,backend}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://rifletautomobile.be,https://www.rifletautomobile.be}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://rifletautomobile.be,https://www.rifletautomobile.be}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
@@ -61,7 +61,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=riflet-automobile_default
-      - traefik.http.routers.riflet-api.rule=(Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api.rule=(Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls=true
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt
@@ -74,20 +74,20 @@ services:
       context: .
       dockerfile: frontend/Dockerfile.prod
       args:
-        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.com}
-        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.com}
+        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://rifletautomobile.be}
+        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://rifletautomobile.be}
     container_name: riflet_frontend
     restart: unless-stopped
     environment:
-      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://hoyouxcorp.com}
-      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://hoyouxcorp.com}
+      NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://rifletautomobile.be}
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-https://rifletautomobile.be}
       NUXT_API_BASE_SERVER: http://backend:8000
     depends_on:
       - backend
     labels:
       - traefik.enable=true
       - traefik.docker.network=riflet-automobile_default
-      - traefik.http.routers.riflet-web.rule=Host(`hoyouxcorp.com`) || Host(`www.hoyouxcorp.com`)
+      - traefik.http.routers.riflet-web.rule=Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls=true
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt

@@ -19,7 +19,8 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(f'Boîte de réception (CONTACT_EMAIL) : {recipient}')
-        self.stdout.write(f'Expéditeur SMTP (DEFAULT_FROM_EMAIL) : {settings.DEFAULT_FROM_EMAIL}')
+        self.stdout.write(f'Compte SMTP (EMAIL_HOST_USER) : {settings.EMAIL_HOST_USER or "(vide)"}')
+        self.stdout.write(f'Expéditeur (DEFAULT_FROM_EMAIL) : {settings.DEFAULT_FROM_EMAIL}')
         self.stdout.write(f'EMAIL_HOST={settings.EMAIL_HOST or "(vide)"}')
         self.stdout.write(f'EMAIL_PORT={settings.EMAIL_PORT}')
         self.stdout.write(f'EMAIL_USE_TLS={settings.EMAIL_USE_TLS}')

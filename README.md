@@ -78,8 +78,9 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 ## Structure du projet
 
 ```
-├── docker-compose.yml      # Production (Hostinger VPS + Traefik)
+├── docker-compose.yml      # Production (Hostinger VPS + Traefik, rifletautomobile.be)
 ├── docker-compose.dev.yml  # Developpement local
+├── .env.production.example # Variables pour la mise en prod
 ├── backend/          # Django + DRF
 │   ├── config/       # Settings Django
 │   └── garage/       # Modèles, API, Admin, seed
@@ -103,15 +104,17 @@ Chaque contenu éditorial possède des champs en **français**, **allemand** et 
 
 ## Formulaire de contact — réception par e-mail (SMTP)
 
-Les messages sont **enregistrés dans l'admin Django** (`Messages de contact`) **et** envoyés par e-mail à `CONTACT_EMAIL`.
+Les messages sont **enregistrés dans l'admin** (`Messages de contact`) **et** envoyés par e-mail à `CONTACT_EMAIL`.
+
+### Option recommandée : une seule boîte (pas de noreply)
+
+**Vous n'avez pas besoin** d'une adresse `noreply@` séparée. Utilisez la même boîte pour envoyer et recevoir :
 
 | Variable | Rôle |
 |----------|------|
-| `CONTACT_EMAIL` | Boîte qui **reçoit** les messages (+ affichée sur le site) |
-| `EMAIL_HOST_USER` | Compte SMTP qui **envoie** les notifications |
-| `DEFAULT_FROM_EMAIL` | Adresse affichée comme expéditeur |
-
-**Actuellement** : adresse perso du développeur. **Plus tard** : remplacez par l'e-mail du garage.
+| `CONTACT_EMAIL` | Reçoit les messages + affichée sur le site |
+| `EMAIL_HOST_USER` | **Même adresse** — compte SMTP qui envoie |
+| `DEFAULT_FROM_EMAIL` | **Même adresse** — expéditeur affiché |
 
 ```env
 CONTACT_EMAIL=hoyouxadrien@gmail.com
@@ -120,20 +123,28 @@ EMAIL_PORT=465
 EMAIL_USE_TLS=False
 EMAIL_USE_SSL=True
 EMAIL_HOST_USER=hoyouxadrien@gmail.com
-EMAIL_HOST_PASSWORD=mot_de_passe_application_sans_espaces
+EMAIL_HOST_PASSWORD=mot_de_passe_application_gmail
 DEFAULT_FROM_EMAIL=hoyouxadrien@gmail.com
 ```
 
-Pour passer à l'e-mail du garage (ex. `contact@hoyouxcorp.com` via Hostinger) :
+Quand vous aurez `contact@rifletautomobile.be` chez Hostinger, mettez **la même adresse** partout et `EMAIL_HOST=smtp.hostinger.com`.
 
-1. Modifiez `CONTACT_EMAIL`, `EMAIL_HOST_USER` et `DEFAULT_FROM_EMAIL`
-2. Adaptez `EMAIL_HOST` / `EMAIL_PORT` (Hostinger : `smtp.hostinger.com`, port 465)
-3. Redémarrez le backend : `docker compose up -d --force-recreate backend`
-4. Relancez `python manage.py seed_data` pour mettre à jour l'e-mail affiché sur le site
+Le champ **Répondre à** (`Reply-To`) contient l'e-mail du visiteur : vous répondez directement au client, pas à votre propre boîte.
 
-**Gmail** : [mot de passe d'application](https://myaccount.google.com/apppasswords) (sans espaces).
+**Gmail** : [mot de passe d'application](https://myaccount.google.com/apppasswords) (validation 2 étapes requise).
+
+### Autres options (si besoin)
+
+| Option | Avantage | Inconvénient |
+|--------|----------|--------------|
+| **Admin seulement** | Gratuit, zéro config | Pas d'e-mail : laissez `EMAIL_HOST` vide |
+| **Une boîte garage** | Simple, suffisant pour un petit site | — |
+| **Service transactionnel** (Resend, Brevo…) | Envoi sans boîte réelle, `noreply@` possible via DNS | Compte + clé API + config domaine |
+| **Boîte noreply dédiée** | Sépare envoi auto / contact humain | 2e boîte à gérer (souvent inutile ici) |
 
 ### Tester
+
+Redémarrez le backend puis :
 
 ```bash
 docker exec -it riflet_backend python manage.py test_email
@@ -189,9 +200,13 @@ npm run dev
 
 ### Étape A — DNS et Traefik
 
-1. Chez Hostinger (DNS), créez un enregistrement **A** : `@` → IP du VPS  
-2. hPanel → **VPS** → **Docker Manager** → déployez le modèle **Traefik** (catalogue)  
-3. Attendez que Traefik soit **Running**
+Domaine : **`rifletautomobile.be`**
+
+1. hPanel → **Domaines** → `rifletautomobile.be` → **DNS** :
+   - **A** `@` → IP du VPS
+   - **A** `www` → IP du VPS (ou **CNAME** `www` → `rifletautomobile.be`)
+2. hPanel → **VPS** → **Docker Manager** → déployez le modèle **Traefik** (catalogue)
+3. Attendez que Traefik soit **Running** (certificat Let's Encrypt automatique)
 
 ### Étape B — Déployer Riflet Automobile
 
@@ -206,13 +221,12 @@ npm run dev
 
 | Variable | Valeur pour votre VPS |
 |----------|----------------------|
-| `DOMAIN` | `hoyouxcorp.com` |
 | `DJANGO_SECRET_KEY` | longue chaîne aléatoire |
-| `DJANGO_ALLOWED_HOSTS` | `hoyouxcorp.com,www.hoyouxcorp.com,backend` |
-| `CORS_ALLOWED_ORIGINS` | `https://hoyouxcorp.com,https://www.hoyouxcorp.com` |
-| `CSRF_TRUSTED_ORIGINS` | `https://hoyouxcorp.com,https://www.hoyouxcorp.com` |
-| `NUXT_PUBLIC_SITE_URL` | `https://hoyouxcorp.com` |
-| `NUXT_PUBLIC_API_BASE` | `https://hoyouxcorp.com` |
+| `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
+| `CORS_ALLOWED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `CSRF_TRUSTED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `NUXT_PUBLIC_SITE_URL` | `https://rifletautomobile.be` |
+| `NUXT_PUBLIC_API_BASE` | `https://rifletautomobile.be` |
 | `MYSQL_PASSWORD` | mot de passe fort |
 | `MYSQL_ROOT_PASSWORD` | mot de passe fort |
 | `ADMIN_PASSWORD` | mot de passe admin |
@@ -235,7 +249,7 @@ python manage.py seed_data
 | Build frontend timeout / OOM | Relancez **Update** ; un VPS 2 Go+ est recommande |
 | Repo prive inaccessible | Ajoutez une [deploy key GitHub](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/) |
 | Conteneurs en Restarting | **View logs** → si mot de passe MySQL change, supprimez le projet et redeployez |
-| `Host(\`\`)` dans les logs | Variable `DOMAIN` manquante — ajoutez `DOMAIN=hoyouxcorp.com` |
+| `Host(\`\`)` dans les logs | DNS pas encore propagé ou mauvais domaine dans Traefik — vérifiez `rifletautomobile.be` |
 | `ENOENT package.json` ou `manage.py not found` | Le compose utilisait des volumes dev (`./frontend:/app`) qui écrasaient le code — mettez à jour le repo et redeployez |
 
 *(repo privé : deploy key requise — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
@@ -277,11 +291,11 @@ Variables importantes dans `.env` :
 |----------|-------------------|
 | `DJANGO_DEBUG` | `False` |
 | `DJANGO_SECRET_KEY` | chaîne longue aléatoire |
-| `DJANGO_ALLOWED_HOSTS` | `votre-domaine.com,www.votre-domaine.com,backend` |
-| `CORS_ALLOWED_ORIGINS` | `https://votre-domaine.com,https://www.votre-domaine.com` |
-| `CSRF_TRUSTED_ORIGINS` | `https://votre-domaine.com,https://www.votre-domaine.com` |
-| `NUXT_PUBLIC_SITE_URL` | `https://votre-domaine.com` |
-| `NUXT_PUBLIC_API_BASE` | `https://votre-domaine.com` |
+| `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
+| `CORS_ALLOWED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `CSRF_TRUSTED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
+| `NUXT_PUBLIC_SITE_URL` | `https://rifletautomobile.be` |
+| `NUXT_PUBLIC_API_BASE` | `https://rifletautomobile.be` |
 | `MYSQL_*` | mots de passe forts |
 
 ### 3. Lancer l'application
@@ -295,13 +309,13 @@ docker compose exec backend python manage.py seed_data
 
 ```bash
 cp deploy/nginx/riflet.conf.example /etc/nginx/sites-available/riflet
-nano /etc/nginx/sites-available/riflet   # remplacer VOTRE_DOMAINE
 ln -s /etc/nginx/sites-available/riflet /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
-certbot --nginx -d votre-domaine.com -d www.votre-domaine.com
+certbot --nginx -d rifletautomobile.be -d www.rifletautomobile.be
 ```
 
-Pointer le domaine (DNS chez Hostinger) vers l'IP du VPS (enregistrement **A**).
+Le fichier `deploy/nginx/riflet.conf.example` est déjà configuré pour `rifletautomobile.be`.
+Modèle complet des variables : `.env.production.example`.
 
 ### Mises à jour
 

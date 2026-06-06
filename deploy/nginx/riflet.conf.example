@@ -1,9 +1,9 @@
 # Copier vers /etc/nginx/sites-available/riflet
-# Remplacer VOTRE_DOMAINE par votre nom de domaine (ex. rifletautomobile.be)
+# Domaine : rifletautomobile.be
 
 server {
     listen 80;
-    server_name VOTRE_DOMAINE www.VOTRE_DOMAINE;
+    server_name rifletautomobile.be www.rifletautomobile.be;
 
     client_max_body_size 10M;
 

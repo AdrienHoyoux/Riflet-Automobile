@@ -10,7 +10,7 @@ from django.utils.timezone import localtime
 
 logger = logging.getLogger(__name__)
 
-SITE_URL = os.getenv('NUXT_PUBLIC_SITE_URL', 'https://hoyouxcorp.com').rstrip('/')
+SITE_URL = os.getenv('NUXT_PUBLIC_SITE_URL', 'https://rifletautomobile.be').rstrip('/')
 
 
 def _format_received_at(contact) -> str:
