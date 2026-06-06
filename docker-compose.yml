@@ -40,7 +40,7 @@ services:
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://rifletautomobile.be,https://www.rifletautomobile.be}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-riflet_db}
       MYSQL_USER: ${MYSQL_USER:-riflet_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-riflet_pass}
       CONTACT_EMAIL: ${CONTACT_EMAIL:-hoyouxadrien@gmail.com}
       EMAIL_HOST: ${EMAIL_HOST:-smtp.gmail.com}
       EMAIL_PORT: ${EMAIL_PORT:-465}
@@ -61,7 +61,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=riflet-automobile_default
-      - traefik.http.routers.riflet-api.rule=(Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)) && (PathPrefix(`/api`) || PathPrefix(`/admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
+      - traefik.http.routers.riflet-api.rule=(Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)) && (PathPrefix(`/api`) || PathPrefix(`/django-admin`) || PathPrefix(`/static`) || PathPrefix(`/media`))
       - traefik.http.routers.riflet-api.entrypoints=websecure
       - traefik.http.routers.riflet-api.tls=true
       - traefik.http.routers.riflet-api.tls.certresolver=letsencrypt

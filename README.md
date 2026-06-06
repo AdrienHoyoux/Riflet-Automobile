@@ -37,8 +37,8 @@ docker compose -f docker-compose.dev.yml up --build
 |-----------|------------------------------------------|
 | Site web  | http://localhost:3000                    |
 | API       | http://localhost:8000/api/               |
-| Admin site| http://localhost:3000/admin/login        |
-| Admin Django | http://localhost:8000/admin/          |
+| Admin site | http://localhost:3000/admin/login |
+| Admin Django | http://localhost:8000/django-admin/ |
 
 **Identifiants admin par défaut** (modifiables dans `.env`) :
 - Utilisateur : `admin`
@@ -71,7 +71,18 @@ Utilisez les identifiants définis dans `.env` (`ADMIN_USERNAME` / `ADMIN_PASSWO
 
 Une fois activée, chaque connexion demande le mot de passe **puis** un code TOTP généré par l'application mobile.
 
-L'**admin Django** (`/admin/`) reste disponible pour les services et les réglages avancés.
+L'**admin Django** (`/django-admin/`) reste disponible pour les réglages avancés.
+
+### Administration en production
+
+| Panneau | URL |
+|---------|-----|
+| **Admin du site** (recommandé) | https://rifletautomobile.be/admin/login |
+| **Admin Django** (avancé) | https://rifletautomobile.be/django-admin/ |
+
+Identifiants : variables `ADMIN_USERNAME` et `ADMIN_PASSWORD` (Hostinger → Docker Manager → variables d'environnement). Compte créé par `seed_data` au premier démarrage.
+
+Si la MFA est activée : mot de passe puis code à 6 chiffres (Google Authenticator).
 
 Chaque contenu éditorial possède des champs en **français**, **allemand** et **néerlandais**.
 
@@ -232,11 +243,36 @@ Domaine : **`rifletautomobile.be`**
 | `ADMIN_PASSWORD` | mot de passe admin |
 
 5. Cliquez **Deploy** — le premier build peut prendre 5–10 min
-6. Terminal conteneur **backend** :
+6. **Données initiales** : `seed_data` s'exécute **automatiquement** au démarrage du conteneur `riflet_backend` (voir `backend/docker-entrypoint.sh`). Dans **View logs** du backend, cherchez :
+   - `Seeding initial data...`
+   - `Données initialisées avec succès.`
+
+   **Vous n'avez en principe pas besoin** de lancer `seed_data` à la main.
+
+### Relancer seed_data sur Hostinger (si besoin)
+
+Le terminal du VPS (SSH ou hPanel) n'est **pas** dans le conteneur Django : `python manage.py` y échoue (`manage.py not found`).
+
+**Méthode 1 — Terminal du conteneur (recommandé)**  
+Docker Manager → projet `riflet-automobile` → conteneur **backend** (`riflet_backend`) → **Terminal** / **Console** :
 
 ```bash
 python manage.py seed_data
 ```
+
+**Méthode 2 — SSH sur le VPS**
+
+```bash
+docker ps
+docker exec riflet_backend python manage.py seed_data
+```
+
+Si le nom diffère (ex. `riflet-automobile-backend-1`), utilisez celui affiché par `docker ps`.
+
+**Méthode 3 — Redémarrer le backend**  
+⋮ → **Restart** sur le conteneur backend → `seed_data` repasse au démarrage.
+
+Connexion admin : `https://rifletautomobile.be/admin/login` (identifiants `ADMIN_USERNAME` / `ADMIN_PASSWORD`).
 
 ### Depannage si le deploiement echoue
 
@@ -248,11 +284,134 @@ python manage.py seed_data
 | Reseau avec un autre nom | Uniquement si vous utilisez le modele Traefik **avec** reseau partage — definissez `TRAEFIK_NETWORK=nom_du_reseau` |
 | Build frontend timeout / OOM | Relancez **Update** ; un VPS 2 Go+ est recommande |
 | Repo prive inaccessible | Ajoutez une [deploy key GitHub](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/) |
-| Conteneurs en Restarting | **View logs** → si mot de passe MySQL change, supprimez le projet et redeployez |
+| Conteneurs en Restarting | **View logs** → souvent mot de passe MySQL incorrect (voir ci-dessous) |
+| `Access denied for user 'riflet_user'` | Mot de passe MySQL incohérent entre backend et base — voir **Dépannage MySQL** |
 | `Host(\`\`)` dans les logs | DNS pas encore propagé ou mauvais domaine dans Traefik — vérifiez `rifletautomobile.be` |
-| `ENOENT package.json` ou `manage.py not found` | Le compose utilisait des volumes dev (`./frontend:/app`) qui écrasaient le code — mettez à jour le repo et redeployez |
+| `ENOENT package.json` ou `manage.py not found` | Terminal **hors** conteneur — ouvrez le terminal du conteneur **backend**, ou `docker exec riflet_backend ...` |
+| `python manage.py` ne marche pas (Hostinger) | Normal sur le VPS : utilisez le terminal du conteneur `riflet_backend` ou `docker exec` (voir ci-dessus) |
 
 *(repo privé : deploy key requise — voir [doc Hostinger](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/))*
+
+### Dépannage MySQL (`Access denied for user 'riflet_user'`)
+
+MySQL enregistre le mot de passe **au premier démarrage** (volume `mysql_data`). Si vous changez `MYSQL_PASSWORD` dans Hostinger ensuite, le backend utilise le nouveau mot de passe mais MySQL garde l'ancien.
+
+**1. Vérifier les mots de passe actuels (SSH)**
+
+```bash
+docker exec riflet_backend env | grep MYSQL
+docker exec riflet_mysql env | grep MYSQL
+```
+
+Les valeurs `MYSQL_PASSWORD` doivent être **identiques** dans les deux conteneurs.
+
+**2. Solution rapide (site neuf, pas de données à garder)**
+
+1. Docker Manager → supprimez le projet `riflet-automobile` **en cochant la suppression des volumes**
+2. Définissez `MYSQL_PASSWORD` et `MYSQL_ROOT_PASSWORD` (mots de passe forts, **identiques à chaque redeploy**)
+3. Redéployez → `seed_data` passera automatiquement au démarrage du backend
+
+**3. Garder les données — réaligner le mot de passe MySQL**
+
+```bash
+# Remplacez NOUVEAU_MDP et ROOT_MDP par vos variables Hostinger
+docker exec -it riflet_mysql mysql -uroot -pROOT_MDP -e "ALTER USER 'riflet_user'@'%' IDENTIFIED BY 'NOUVEAU_MDP'; FLUSH PRIVILEGES;"
+docker restart riflet_backend
+```
+
+Puis vérifiez les logs du backend (`Données initialisées avec succès`).
+
+### Reconstruction complète (tout supprimer et redéployer)
+
+À utiliser si MySQL, les médias ou la config sont cassés. **Toutes les données** (base MySQL, photos uploadées, messages) seront **effacées**. `seed_data` recréera le contenu de démo au redémarrage.
+
+#### Méthode A — Docker Manager Hostinger (recommandé)
+
+1. hPanel → **VPS** → **Docker Manager**
+2. Projet `riflet-automobile` → **⋮** → **Delete** / **Supprimer**
+3. **Cochez « Remove volumes »** / **« Supprimer les volumes »** (obligatoire)
+4. Confirmez la suppression — attendez que les conteneurs et volumes disparaissent
+5. **Compose** → **Compose from URL** → même URL GitHub qu'avant
+6. Nom du projet : `riflet-automobile`
+7. Renseignez **toutes** les variables (copiez `.env.production.example`) :
+   - `MYSQL_PASSWORD` et `MYSQL_ROOT_PASSWORD` : mots de passe forts, **à noter**
+   - `DJANGO_SECRET_KEY`, `ADMIN_PASSWORD`, etc.
+8. **Deploy** — premier build : 5–10 min
+9. **View logs** du conteneur `riflet_backend` → attendez :
+   ```
+   Données initialisées avec succès.
+   Starting application...
+   ```
+
+Ne faites pas seulement **Update** après un changement de `MYSQL_PASSWORD` : sans suppression des volumes, MySQL garde l'ancien mot de passe.
+
+#### Méthode B — SSH sans supprimer le projet hPanel (recommandé si le projet existe déjà)
+
+Gardez le projet et les **variables d'environnement** dans Docker Manager. Seuls conteneurs et volumes sont recréés.
+
+```bash
+# 1. Arrêter les conteneurs Riflet (noms fixes dans docker-compose.yml)
+docker stop riflet_frontend riflet_backend riflet_mysql 2>/dev/null || true
+docker rm riflet_frontend riflet_backend riflet_mysql 2>/dev/null || true
+
+# 2. Lister les volumes (noms possibles selon le déploiement Hostinger)
+docker volume ls | grep -E 'riflet|mysql_data|media_data'
+
+# 3. Supprimer les volumes MySQL + médias (adaptez si les noms diffèrent)
+docker volume rm riflet-automobile_mysql_data riflet-automobile_media_data 2>/dev/null || true
+docker volume rm mysql_data media_data 2>/dev/null || true
+
+# 4. Vérifier que tout est parti
+docker ps -a | grep riflet
+docker volume ls | grep -E 'riflet|mysql_data|media_data'
+```
+
+**5. Redémarrer le build** — au choix :
+
+- **hPanel** → Docker Manager → projet `riflet-automobile` → **⋮** → **Update** (ou **Restart** si Update relance le compose)
+- **Ou SSH** si vous connaissez le dossier du déploiement Hostinger :
+
+```bash
+cd /docker/riflet-automobile   # chemin indicatif — voir note ci-dessous
+docker compose up -d --build
+```
+
+**Trouver le dossier du projet sur le VPS :**
+
+```bash
+docker inspect riflet_backend --format '{{.Config.Labels}}' 2>/dev/null
+# ou, après suppression des conteneurs, chercher le compose :
+find / -name "docker-compose.yml" 2>/dev/null | grep -i riflet
+```
+
+**6. Vérifier les logs**
+
+```bash
+docker logs -f riflet_backend
+```
+
+Attendez `Données initialisées avec succès.` — `seed_data` repasse au démarrage.
+
+> **Avant l'étape 1** : vérifiez que `MYSQL_PASSWORD` et `MYSQL_ROOT_PASSWORD` dans hPanel sont corrects et **identiques** à ce que vous voulez utiliser. Les nouveaux volumes MySQL prendront ces valeurs.
+
+#### Méthode C — SSH avec `docker compose down -v` (si vous avez le dossier du projet)
+
+```bash
+cd /chemin/vers/le/projet   # dossier contenant docker-compose.yml
+docker compose down -v
+docker compose up -d --build
+```
+
+#### Vérification après reconstruction
+
+```bash
+docker ps
+docker exec riflet_backend env | grep MYSQL_PASSWORD
+docker exec riflet_mysql env | grep MYSQL_PASSWORD
+docker logs riflet_backend --tail 30
+```
+
+Les deux `MYSQL_PASSWORD` doivent être identiques. Le site : `https://rifletautomobile.be` — admin : `/admin/login`.
 
 ### Gestion via le tableau de bord
 
