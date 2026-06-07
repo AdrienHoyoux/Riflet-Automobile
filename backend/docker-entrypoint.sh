@@ -30,7 +30,7 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-echo "Seeding initial data..."
+echo "Seeding initial data (création uniquement si absent)..."
 python manage.py seed_data
 
 echo "Starting application..."

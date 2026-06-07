@@ -1,9 +1,11 @@
 # Production (Hostinger VPS + Traefik)
-# Deploy via Docker Manager → Compose from URL :
-# https://github.com/AdrienHoyoux/Riflet-Automobile
 #
-# Traefik (host mode) : ajouter dans command :
-#   --providers.docker.network=riflet-automobile_default
+# Déploiement manuel SSH (recommandé) :
+#   git clone … && cp .env.production.example .env && nano .env
+#   docker compose -p riflet-automobile --env-file .env up -d --build
+#   Voir deploy/HOSTINGER.md et ./deploy/hostinger.sh
+#
+# Traefik (host mode) : --providers.docker.network=riflet-automobile_default
 
 services:
   db:

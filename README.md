@@ -207,9 +207,38 @@ npm install
 npm run dev
 ```
 
-## Production (VPS Hostinger + Docker Manager)
+## Production (VPS Hostinger)
 
-> Méthode recommandée si vous utilisez le **tableau de bord Docker** dans hPanel.
+> **Déploiement manuel SSH** : guide complet dans [`deploy/HOSTINGER.md`](deploy/HOSTINGER.md)  
+> Script : `./deploy/hostinger.sh install` | `update` | `logs` | `reset-volumes`
+
+### Méthode recommandée — docker compose en SSH
+
+```bash
+ssh root@VOTRE_IP_VPS
+mkdir -p /var/www && cd /var/www
+git clone https://github.com/AdrienHoyoux/Riflet-Automobile.git
+cd Riflet-Automobile
+cp .env.production.example .env && nano .env
+chmod +x deploy/hostinger.sh
+./deploy/hostinger.sh install
+```
+
+Mises à jour :
+
+```bash
+cd /var/www/Riflet-Automobile
+./deploy/hostinger.sh update
+```
+
+Avant la première install manuelle, **arrêtez ou supprimez** le projet Docker Manager dans hPanel pour éviter deux stacks en parallèle.
+
+---
+
+### Alternative — Docker Manager hPanel
+
+<details>
+<summary>Déployer via Compose from URL (hPanel)</summary>
 
 ### Étape A — DNS et Traefik
 
@@ -245,11 +274,7 @@ Domaine : **`rifletautomobile.be`**
 | `ADMIN_PASSWORD` | mot de passe admin |
 
 5. Cliquez **Deploy** — le premier build peut prendre 5–10 min
-6. **Données initiales** : `seed_data` s'exécute **automatiquement** au démarrage du conteneur `riflet_backend` (voir `backend/docker-entrypoint.sh`). Dans **View logs** du backend, cherchez :
-   - `Seeding initial data...`
-   - `Données initialisées avec succès.`
-
-   **Vous n'avez en principe pas besoin** de lancer `seed_data` à la main.
+6. **Données initiales** : `seed_data` s'exécute au démarrage du backend mais **ne modifie pas** le contenu déjà en base (paramètres, actualités, véhicules et avis ajoutés par l'admin sont **conservés** lors des mises à jour). Au premier déploiement seulement : compte admin, paramètres du site, services, actualité « Bienvenue chez Riflet Automobile », avis exemple. **Aucun véhicule d'occasion** n'est créé par défaut.
 
 ### Relancer seed_data sur Hostinger (si besoin)
 
@@ -325,7 +350,7 @@ Puis vérifiez les logs du backend (`Données initialisées avec succès`).
 
 ### Reconstruction complète (tout supprimer et redéployer)
 
-À utiliser si MySQL, les médias ou la config sont cassés. **Toutes les données** (base MySQL, photos uploadées, messages) seront **effacées**. `seed_data` recréera le contenu de démo au redémarrage.
+À utiliser si MySQL, les médias ou la config sont cassés. **Toutes les données** (base MySQL, photos uploadées, messages) seront **effacées**. Au redémarrage, `seed_data` recréera uniquement les **données de base** (pas les véhicules démo).
 
 #### Méthode A — Docker Manager Hostinger (recommandé)
 
@@ -421,131 +446,14 @@ Les deux `MYSQL_PASSWORD` doivent être identiques. Le site : `https://rifletaut
 - **Redémarrage** : ⋮ → Restart
 - **Mise à jour** : poussez sur GitHub → ⋮ → **Update**
 
-### Mise à jour depuis GitHub (terminal SSH)
-
-Deux façons de mettre à jour. **Ne mélangez pas** Docker Manager « Compose from URL » et un clone manuel sur le même VPS sans arrêter l'autre déploiement (sinon doublons de conteneurs).
-
-#### Option 1 — Docker Manager (sans SSH, le plus simple)
-
-1. Poussez vos changements sur GitHub (`git push`)
-2. hPanel → **Docker Manager** → `riflet-automobile` → **⋮** → **Update**
-3. Attendez la fin du build → **View logs** sur `riflet_backend`
-
-Hostinger retélécharge le dépôt et relance `docker compose up --build` avec vos variables d'environnement déjà enregistrées dans hPanel.
-
-#### Option 2 — Terminal SSH (clone Git sur le VPS)
-
-**Première fois** — cloner le projet et créer le `.env` :
-
-```bash
-ssh root@VOTRE_IP_VPS
-
-mkdir -p /var/www && cd /var/www
-git clone https://github.com/AdrienHoyoux/Riflet-Automobile.git
-cd Riflet-Automobile
-
-cp .env.production.example .env
-nano .env   # mots de passe, DJANGO_SECRET_KEY, ADMIN_PASSWORD, etc.
-
-docker compose -p riflet-automobile up -d --build
-```
-
-> Si le projet tourne déjà via Docker Manager, supprimez-le dans hPanel (ou arrêtez ses conteneurs) avant cette première installation manuelle, pour éviter deux stacks en parallèle.
-
-**Mises à jour suivantes** :
-
-```bash
-cd /var/www/Riflet-Automobile
-git pull origin main
-docker compose -p riflet-automobile up -d --build
-```
-
-**Vérifier** :
-
-```bash
-docker ps
-docker logs riflet_backend --tail 30
-```
-
-Les volumes (`mysql_data`, `media_data`) sont **conservés** : la base et les fichiers uploadés restent en place.
-
-**Repo privé** : configurez une clé SSH ou un token sur le VPS :
-
-```bash
-git clone git@github.com:AdrienHoyoux/Riflet-Automobile.git
-# ou : git clone https://TOKEN@github.com/AdrienHoyoux/Riflet-Automobile.git
-```
-
-**Trouver le dossier** si le projet a déjà été cloné ailleurs :
-
-```bash
-find /var /docker /root -name "docker-compose.yml" 2>/dev/null | xargs grep -l riflet_backend 2>/dev/null
-```
+</details>
 
 ---
 
-## Production (VPS manuel SSH)
+## Production sans Traefik (nginx direct)
 
-### 1. Préparer le serveur (Ubuntu)
-
-```bash
-# Connexion SSH (IP et mot de passe depuis hPanel Hostinger)
-ssh root@VOTRE_IP_VPS
-
-# Docker
-curl -fsSL https://get.docker.com | sh
-apt install -y nginx certbot python3-certbot-nginx git
-```
-
-### 2. Cloner et configurer
-
-```bash
-cd /var/www
-git clone https://github.com/AdrienHoyoux/Riflet-Automobile.git
-cd Riflet-Automobile
-cp .env.example .env
-nano .env
-```
-
-Variables importantes dans `.env` :
-
-| Variable | Exemple production |
-|----------|-------------------|
-| `DJANGO_DEBUG` | `False` |
-| `DJANGO_SECRET_KEY` | chaîne longue aléatoire |
-| `DJANGO_ALLOWED_HOSTS` | `rifletautomobile.be,www.rifletautomobile.be,backend` |
-| `CORS_ALLOWED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
-| `CSRF_TRUSTED_ORIGINS` | `https://rifletautomobile.be,https://www.rifletautomobile.be` |
-| `NUXT_PUBLIC_SITE_URL` | `https://rifletautomobile.be` |
-| `NUXT_PUBLIC_API_BASE` | `https://rifletautomobile.be` |
-| `MYSQL_*` | mots de passe forts |
-
-### 3. Lancer l'application
-
-```bash
-docker compose up -d --build
-docker compose exec backend python manage.py seed_data
-```
-
-### 4. Nginx + HTTPS
-
-```bash
-cp deploy/nginx/riflet.conf.example /etc/nginx/sites-available/riflet
-ln -s /etc/nginx/sites-available/riflet /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-certbot --nginx -d rifletautomobile.be -d www.rifletautomobile.be
-```
-
-Le fichier `deploy/nginx/riflet.conf.example` est déjà configuré pour `rifletautomobile.be`.
-Modèle complet des variables : `.env.production.example`.
-
-### Mises à jour
-
-```bash
-cd /var/www/Riflet-Automobile
-git pull
-docker compose up -d --build
-```
+Si vous n'utilisez **pas** Traefik Hostinger, voir `deploy/nginx/riflet.conf.example` + certbot.  
+Avec Traefik (cas usual Hostinger), suivez [`deploy/HOSTINGER.md`](deploy/HOSTINGER.md) uniquement.
 
 ## Licence
 
