@@ -2,8 +2,24 @@
   <div>
     <h1 class="font-display text-4xl">Sécurité</h1>
     <p class="mt-2 text-sm text-smoke">
-      Protégez l'accès à l'administration avec un code à usage unique (Google Authenticator, Microsoft Authenticator, etc.).
+      Changez votre mot de passe et protégez l'accès avec un code à usage unique (Google Authenticator, etc.).
     </p>
+
+    <section class="card mt-8 space-y-4">
+      <h2 class="font-display text-2xl">Mot de passe</h2>
+      <p class="text-sm text-smoke">Modifiez le mot de passe de votre compte connecté.</p>
+
+      <form class="space-y-4" @submit.prevent="onChangePassword">
+        <AdminField v-model="currentPassword" label="Mot de passe actuel" type="password" />
+        <AdminField v-model="newPassword" label="Nouveau mot de passe (min. 8 caractères)" type="password" />
+        <AdminField v-model="confirmPassword" label="Confirmer le nouveau mot de passe" type="password" />
+        <p v-if="passwordMessage" class="text-sm font-bold text-green-700">{{ passwordMessage }}</p>
+        <p v-if="passwordError" class="text-sm font-bold text-red-600">{{ passwordError }}</p>
+        <button type="submit" class="btn-primary" :disabled="passwordSaving">
+          {{ passwordSaving ? 'Enregistrement...' : 'Changer le mot de passe' }}
+        </button>
+      </form>
+    </section>
 
     <div v-if="loading" class="mt-8 text-sm text-smoke">Chargement...</div>
 
@@ -96,10 +112,16 @@ import { formatAdminError } from '~/composables/useAssetUrl'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
-const { fetchMfaStatus, setupMfa, enableMfa, disableMfa } = useAdminAuth()
+const { fetchMfaStatus, setupMfa, enableMfa, disableMfa, changePassword } = useAdminAuth()
 
 const loading = ref(true)
 const saving = ref(false)
+const passwordSaving = ref(false)
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordMessage = ref('')
+const passwordError = ref('')
 const status = ref<{ enabled: boolean, pending_setup: boolean } | null>(null)
 const setup = ref<AdminMfaSetupResult | null>(null)
 const enableCode = ref('')
@@ -153,6 +175,27 @@ async function onEnable() {
     error.value = formatAdminError(err)
   } finally {
     saving.value = false
+  }
+}
+
+async function onChangePassword() {
+  passwordSaving.value = true
+  passwordMessage.value = ''
+  passwordError.value = ''
+  try {
+    const result = await changePassword(
+      currentPassword.value,
+      newPassword.value,
+      confirmPassword.value,
+    )
+    passwordMessage.value = result.detail
+    currentPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+  } catch (err) {
+    passwordError.value = formatAdminError(err)
+  } finally {
+    passwordSaving.value = false
   }
 }
 

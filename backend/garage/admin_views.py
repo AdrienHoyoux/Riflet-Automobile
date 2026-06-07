@@ -161,6 +161,45 @@ class AdminMeView(APIView):
         })
 
 
+class AdminPasswordChangeView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        current_password = request.data.get('current_password', '')
+        new_password = request.data.get('new_password', '')
+        confirm_password = request.data.get('confirm_password', '')
+
+        if len(new_password) < 8:
+            return Response(
+                {'detail': 'Le nouveau mot de passe doit contenir au moins 8 caractères.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if new_password != confirm_password:
+            return Response(
+                {'detail': 'Les deux mots de passe ne correspondent pas.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = authenticate(request, username=request.user.username, password=current_password)
+        if user is None:
+            return Response(
+                {'detail': 'Mot de passe actuel incorrect.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        if current_password == new_password:
+            return Response(
+                {'detail': 'Le nouveau mot de passe doit être différent de l\'actuel.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+
+        return Response({'detail': 'Mot de passe modifié avec succès.'})
+
+
 class AdminSiteSettingsView(APIView):
     permission_classes = [IsAdminUser]
 

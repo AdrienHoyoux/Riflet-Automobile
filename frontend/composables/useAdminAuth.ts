@@ -140,6 +140,17 @@ export function useAdminAuth() {
     })
   }
 
+  async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+    return adminFetch<{ detail: string }>('password/', {
+      method: 'POST',
+      body: {
+        current_password: currentPassword,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      },
+    })
+  }
+
   return {
     token,
     username,
@@ -154,6 +165,7 @@ export function useAdminAuth() {
     setupMfa,
     enableMfa,
     disableMfa,
+    changePassword,
   }
 }
 

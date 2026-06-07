@@ -27,6 +27,6 @@ const cards = [
   { to: '/admin/avis', title: 'Avis', text: 'Ajouter des avis à la main et choisir les 6 de l\'accueil.' },
   { to: '/admin/messages', title: 'Messages', text: 'Consulter les demandes de contact.' },
   { to: '/admin/comptes', title: 'Comptes', text: 'Ajouter ou supprimer des accès admin.' },
-  { to: '/admin/securite', title: 'Sécurité', text: 'Authentification à deux facteurs (MFA).' },
+  { to: '/admin/securite', title: 'Sécurité', text: 'Mot de passe et authentification à deux facteurs (MFA).' },
 ]
 </script>
