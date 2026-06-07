@@ -10,18 +10,21 @@ import type {
 
 export function useApiBase() {
   const config = useRuntimeConfig()
+
   if (import.meta.server) {
     return (config.apiBaseServer || config.public.apiBase) as string
   }
 
-  const publicBase = (config.public.apiBase as string) || ''
-  // Dev : API sur un autre port (ex. localhost:8000)
-  if (publicBase.includes('localhost') || publicBase.includes('127.0.0.1')) {
-    return publicBase
+  // Navigateur : si on n'est pas en local, toujours same-origin (/api → Django via Traefik)
+  // Même si le build a embarqué localhost:8000 par erreur.
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    if (host !== 'localhost' && host !== '127.0.0.1') {
+      return ''
+    }
   }
 
-  // Prod : same-origin — Traefik/nginx route /api/* vers Django (pas de CORS)
-  return ''
+  return (config.public.apiBase as string) || 'http://localhost:8000'
 }
 
 export function useLocalizedField<T extends Record<string, unknown>>(

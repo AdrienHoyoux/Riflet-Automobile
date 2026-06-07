@@ -4,16 +4,7 @@ export function resolveImageUrl(url: string | null | undefined): string {
 
   const config = useRuntimeConfig()
   if (url.startsWith('/media/')) {
-    const base = import.meta.server
-      ? ((config.apiBaseServer || config.public.apiBase) as string)
-      : (() => {
-          const publicBase = (config.public.apiBase as string) || ''
-          if (publicBase.includes('localhost') || publicBase.includes('127.0.0.1')) {
-            return publicBase
-          }
-          return ''
-        })()
-    return `${base}${url}`
+    return `${useApiBase()}${url}`
   }
 
   return `${config.public.siteUrl}${url}`
