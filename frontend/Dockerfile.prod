@@ -22,6 +22,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
+# SSR Nitro → backend Docker ; le navigateur utilise /api en same-origin
+ENV NUXT_API_BASE_SERVER=http://backend:8000
+ENV NUXT_PUBLIC_API_BASE=https://rifletautomobile.be
+ENV NUXT_PUBLIC_SITE_URL=https://rifletautomobile.be
 
 COPY --from=builder /app/.output ./.output
 

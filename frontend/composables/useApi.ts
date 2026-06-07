@@ -13,7 +13,15 @@ export function useApiBase() {
   if (import.meta.server) {
     return (config.apiBaseServer || config.public.apiBase) as string
   }
-  return config.public.apiBase as string
+
+  const publicBase = (config.public.apiBase as string) || ''
+  // Dev : API sur un autre port (ex. localhost:8000)
+  if (publicBase.includes('localhost') || publicBase.includes('127.0.0.1')) {
+    return publicBase
+  }
+
+  // Prod : same-origin — Traefik/nginx route /api/* vers Django (pas de CORS)
+  return ''
 }
 
 export function useLocalizedField<T extends Record<string, unknown>>(
