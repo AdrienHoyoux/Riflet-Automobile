@@ -3,13 +3,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from config.media_views import ServeMediaView
+
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('api/', include('garage.urls')),
+    path('media/<path:path>', ServeMediaView.as_view(), name='serve-media'),
 ]
-
-# Fichiers uploadés (admin) — servis par Django derrière Traefik / nginx en prod
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

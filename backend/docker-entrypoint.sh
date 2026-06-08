@@ -30,6 +30,9 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+mkdir -p /app/media/news /app/media/settings /app/media/vehicles /app/media/services
+chmod -R 755 /app/media 2>/dev/null || true
+
 if [ "${RUN_SEED_DATA:-false}" = "true" ]; then
   echo "Seeding initial data (création uniquement si absent)..."
   python manage.py seed_data
