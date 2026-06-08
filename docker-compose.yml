@@ -55,6 +55,9 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://rifletautomobile.be}
+      # Ne pas activer en prod : les données admin/MySQL doivent persister entre déploiements
+      RUN_SEED_DATA: ${RUN_SEED_DATA:-false}
     volumes:
       - media_data:/app/media
     depends_on:
@@ -96,7 +99,7 @@ services:
       - traefik.http.routers.riflet-site-admin.tls.certresolver=letsencrypt
       - traefik.http.routers.riflet-site-admin.priority=200
       - traefik.http.routers.riflet-site-admin.service=riflet-web
-      - traefik.http.routers.riflet-web.rule=Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)
+      - traefik.http.routers.riflet-web.rule=(Host(`rifletautomobile.be`) || Host(`www.rifletautomobile.be`)) && !PathPrefix(`/api`) && !PathPrefix(`/media`) && !PathPrefix(`/static`) && !PathPrefix(`/django-admin`)
       - traefik.http.routers.riflet-web.entrypoints=websecure
       - traefik.http.routers.riflet-web.tls=true
       - traefik.http.routers.riflet-web.tls.certresolver=letsencrypt

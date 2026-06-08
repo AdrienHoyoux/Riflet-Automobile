@@ -50,18 +50,6 @@
             </div>
           </div>
         </div>
-
-        <div class="overflow-hidden border-2 border-ink">
-          <p class="bg-ink px-3 py-1 text-[10px] font-bold uppercase tracking-street text-chalk">
-            Page À propos
-          </p>
-          <div class="space-y-3 bg-chalk p-3">
-            <img :src="heroImage" alt="" class="aspect-[4/3] w-full object-cover">
-            <p class="whitespace-pre-line text-xs leading-relaxed text-smoke">
-              {{ aboutText || 'Texte à propos…' }}
-            </p>
-          </div>
-        </div>
       </div>
     </template>
 

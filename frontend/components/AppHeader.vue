@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 border-b-2 border-ink bg-chalk/95 backdrop-blur-sm">
+  <header class="sticky top-0 z-[9999] isolate border-b-2 border-ink bg-chalk">
     <div class="container-custom">
       <div class="flex h-[4.5rem] items-center justify-between lg:h-20">
         <NuxtLinkLocale to="/" class="group flex items-center gap-4">

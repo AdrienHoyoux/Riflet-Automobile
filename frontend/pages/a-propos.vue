@@ -1,8 +1,8 @@
 <template>
   <div>
     <PageHero
-      :title="$t('about.title')"
-      :subtitle="$t('about.subtitle')"
+      :title="aboutPageTitle"
+      :subtitle="aboutPageSubtitle"
       :label="$t('nav.about')"
     />
 
@@ -58,7 +58,7 @@
       </div>
     </section>
 
-    <section v-if="mapCoords" ref="mapSection" class="border-t-2 border-ink bg-chalk-dark pb-16 lg:pb-24">
+    <section v-if="mapCoords" ref="mapSection" class="relative z-0 border-t-2 border-ink bg-chalk-dark pb-16 lg:pb-24">
       <div class="container-custom">
         <p class="anim-label section-label">{{ $t('about.map_label') }}</p>
         <h2 class="anim-title section-title mt-2">{{ $t('about.map_title') }}</h2>
@@ -89,13 +89,18 @@ const mapSection = ref<HTMLElement | null>(null)
 
 const { slideIn, revealSection } = useGsap()
 
+const aboutPageTitle = useSettingsField(settings, 'about_title', 'about.title')
+const aboutPageSubtitle = useSettingsField(settings, 'about_subtitle', 'about.subtitle')
+
 const aboutText = computed(() => {
   if (!settings?.value) return ''
   return useLocalizedField(settings.value, 'about')
 })
 
 const aboutImage = computed(() =>
-  resolveImageUrl(settings?.value?.hero_image_url) || VOLVO_IMAGES.about,
+  resolveImageUrl(settings?.value?.about_image_url)
+    || resolveImageUrl(settings?.value?.hero_image_url)
+    || VOLVO_IMAGES.about,
 )
 
 const mapCoords = computed(() => {

@@ -35,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { getNewsFallback } from '~/utils/images'
 
 const route = useRoute()
@@ -56,7 +57,7 @@ const formattedDate = computed(() =>
   formatDate(article.value!.published_at, locale.value),
 )
 const imageSrc = computed(() =>
-  article.value?.image || getNewsFallback(article.value!.id),
+  resolveImageUrl(article.value?.image) || getNewsFallback(article.value!.id),
 )
 
 useSeoMetaTags(

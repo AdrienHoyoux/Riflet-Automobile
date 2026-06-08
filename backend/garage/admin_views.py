@@ -17,15 +17,18 @@ from .mfa import (
     verify_pending_token,
     verify_totp,
 )
-from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, SiteSettings, UsedVehicle
+from .media_urls import normalize_media_path
+from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 from .serializers import (
     AdminContactMessageSerializer,
     AdminCustomerReviewSerializer,
     AdminNewsArticleSerializer,
+    AdminServiceSerializer,
     AdminSiteSettingsSerializer,
     AdminStaffUserCreateSerializer,
     AdminStaffUserSerializer,
     AdminUsedVehicleSerializer,
+    AdminWhyChooseItemSerializer,
 )
 
 
@@ -55,19 +58,23 @@ class AdminUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not uploaded.content_type.startswith('image/'):
-            return Response({'detail': 'Le fichier doit être une image.'}, status=status.HTTP_400_BAD_REQUEST)
-
         ext = os.path.splitext(uploaded.name)[1].lower()
         if ext not in self.ALLOWED_EXTENSIONS:
             return Response({'detail': 'Format non supporté (jpg, png, webp, gif).'}, status=status.HTTP_400_BAD_REQUEST)
 
+        content_type = getattr(uploaded, 'content_type', '') or ''
+        if content_type and not content_type.startswith('image/'):
+            return Response({'detail': 'Le fichier doit être une image.'}, status=status.HTTP_400_BAD_REQUEST)
+
         filename = f'{uuid.uuid4().hex}{ext}'
         saved_path = default_storage.save(f'{folder}/{filename}', uploaded)
         url = default_storage.url(saved_path)
+        from django.conf import settings
+
+        absolute = f'{settings.PUBLIC_SITE_URL}{url}' if url.startswith('/') else url
         return Response({
-            'url': url,
-            'absolute_url': request.build_absolute_uri(url),
+            'url': normalize_media_path(url),
+            'absolute_url': absolute,
         }, status=status.HTTP_201_CREATED)
 
 
@@ -291,13 +298,41 @@ class AdminVehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
     parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
 
 
+class AdminServiceListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminServiceSerializer
+    queryset = Service.objects.all().order_by('order', 'title_fr')
+    pagination_class = None
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
+
+
+class AdminServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminServiceSerializer
+    queryset = Service.objects.all()
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
+
+
+class AdminWhyChooseItemListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminWhyChooseItemSerializer
+    queryset = WhyChooseItem.objects.all().order_by('order', 'pk')
+    pagination_class = None
+
+
+class AdminWhyChooseItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminWhyChooseItemSerializer
+    queryset = WhyChooseItem.objects.all()
+
+
 class AdminMessageListView(generics.ListAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminContactMessageSerializer
     queryset = ContactMessage.objects.all().order_by('-created_at')
 
 
-class AdminMessageDetailView(generics.RetrieveUpdateAPIView):
+class AdminMessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminContactMessageSerializer
     queryset = ContactMessage.objects.all()

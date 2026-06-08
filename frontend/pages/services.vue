@@ -1,8 +1,8 @@
 <template>
   <div>
     <PageHero
-      :title="$t('services.title')"
-      :subtitle="$t('services.subtitle')"
+      :title="servicesPageTitle"
+      :subtitle="servicesPageSubtitle"
       :label="$t('nav.services')"
     />
 
@@ -21,8 +21,14 @@
 </template>
 
 <script setup lang="ts">
+import type { SiteSettings } from '~/types/api'
+
 const { t } = useI18n()
+const settings = inject<Ref<SiteSettings | null>>('siteSettings')
 const { data: services } = await useAsyncData('services', fetchServices)
+
+const servicesPageTitle = useSettingsField(settings, 'services_title', 'services.title')
+const servicesPageSubtitle = useSettingsField(settings, 'services_subtitle', 'services.subtitle')
 
 const servicesGrid = ref<HTMLElement | null>(null)
 const { staggerIn } = useGsap()

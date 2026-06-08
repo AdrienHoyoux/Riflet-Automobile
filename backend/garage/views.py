@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
+from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 from .notifications import notify_contact_message
 from .serializers import (
     ContactMessageSerializer,
@@ -13,6 +13,7 @@ from .serializers import (
     ServiceSerializer,
     SiteSettingsSerializer,
     UsedVehicleSerializer,
+    WhyChooseItemSerializer,
 )
 
 
@@ -28,6 +29,14 @@ class ServiceListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Service.objects.filter(is_active=True)
+
+
+class WhyChooseItemListView(generics.ListAPIView):
+    serializer_class = WhyChooseItemSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return WhyChooseItem.objects.filter(is_active=True)
 
 
 class NewsListView(generics.ListAPIView):

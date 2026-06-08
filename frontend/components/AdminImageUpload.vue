@@ -77,20 +77,32 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const uploading = ref(false)
 const error = ref('')
+const localPreviewUrl = ref('')
 
 const urlValue = computed({
   get: () => props.modelValue,
   set: (value: string) => emit('update:modelValue', normalizeImageUrlForStorage(value)),
 })
 
-const previewUrl = computed(() => resolveImageUrl(props.modelValue) || '')
+const previewUrl = computed(() => localPreviewUrl.value || resolveImageUrl(props.modelValue) || '')
 const displayUrl = computed(() => resolveImageUrl(props.modelValue))
+
+onBeforeUnmount(() => {
+  if (localPreviewUrl.value) {
+    URL.revokeObjectURL(localPreviewUrl.value)
+  }
+})
 
 async function onFileSelected(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
   if (!file) return
+
+  if (localPreviewUrl.value) {
+    URL.revokeObjectURL(localPreviewUrl.value)
+  }
+  localPreviewUrl.value = URL.createObjectURL(file)
 
   uploading.value = true
   error.value = ''
@@ -100,12 +112,18 @@ async function onFileSelected(event: Event) {
     emit('update:modelValue', result.url)
   } catch (err) {
     error.value = formatAdminError(err)
+    URL.revokeObjectURL(localPreviewUrl.value)
+    localPreviewUrl.value = ''
   } finally {
     uploading.value = false
   }
 }
 
 function clearImage() {
+  if (localPreviewUrl.value) {
+    URL.revokeObjectURL(localPreviewUrl.value)
+    localPreviewUrl.value = ''
+  }
   emit('update:modelValue', '')
   error.value = ''
 }

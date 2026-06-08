@@ -131,7 +131,7 @@
 
 <script setup lang="ts">
 import type { UsedVehicle } from '~/types/api'
-import { formatAdminError, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
+import { formatAdminError, imageUrlFromPreview, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
 import { parsePriceInput } from '~/utils/price'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -163,6 +163,8 @@ interface AdminVehicle {
   description_fr: string
 
   image_url: string
+
+  image_preview?: string | null
 
   is_active: boolean
 
@@ -303,7 +305,7 @@ function editVehicle(vehicle: AdminVehicle) {
 
     price: String(vehicle.price),
 
-    image_url: vehicle.image_url || '',
+    image_url: imageUrlFromPreview(vehicle.image_preview, vehicle.image_url),
 
   }
 

@@ -35,6 +35,32 @@ class SiteSettings(models.Model):
     about_de = models.TextField('À propos (DE)', blank=True)
     about_nl = models.TextField('À propos (NL)', blank=True)
 
+    about_title_fr = models.CharField('Titre page À propos (FR)', max_length=255, blank=True)
+    about_title_de = models.CharField('Titre page À propos (DE)', max_length=255, blank=True)
+    about_title_nl = models.CharField('Titre page À propos (NL)', max_length=255, blank=True)
+    about_subtitle_fr = models.CharField('Sous-titre page À propos (FR)', max_length=500, blank=True)
+    about_subtitle_de = models.CharField('Sous-titre page À propos (DE)', max_length=500, blank=True)
+    about_subtitle_nl = models.CharField('Sous-titre page À propos (NL)', max_length=500, blank=True)
+    about_image_url = models.CharField('URL image page À propos', max_length=500, blank=True)
+
+    home_services_title_fr = models.CharField('Titre section services accueil (FR)', max_length=255, blank=True)
+    home_services_title_de = models.CharField('Titre section services accueil (DE)', max_length=255, blank=True)
+    home_services_title_nl = models.CharField('Titre section services accueil (NL)', max_length=255, blank=True)
+    home_services_subtitle_fr = models.CharField('Sous-titre section services accueil (FR)', max_length=500, blank=True)
+    home_services_subtitle_de = models.CharField('Sous-titre section services accueil (DE)', max_length=500, blank=True)
+    home_services_subtitle_nl = models.CharField('Sous-titre section services accueil (NL)', max_length=500, blank=True)
+
+    home_why_title_fr = models.CharField('Titre « Pourquoi nous choisir » (FR)', max_length=255, blank=True)
+    home_why_title_de = models.CharField('Titre « Pourquoi nous choisir » (DE)', max_length=255, blank=True)
+    home_why_title_nl = models.CharField('Titre « Pourquoi nous choisir » (NL)', max_length=255, blank=True)
+
+    services_title_fr = models.CharField('Titre page Services (FR)', max_length=255, blank=True)
+    services_title_de = models.CharField('Titre page Services (DE)', max_length=255, blank=True)
+    services_title_nl = models.CharField('Titre page Services (NL)', max_length=255, blank=True)
+    services_subtitle_fr = models.CharField('Sous-titre page Services (FR)', max_length=500, blank=True)
+    services_subtitle_de = models.CharField('Sous-titre page Services (DE)', max_length=500, blank=True)
+    services_subtitle_nl = models.CharField('Sous-titre page Services (NL)', max_length=500, blank=True)
+
     address = models.CharField('Adresse', max_length=255)
     city = models.CharField('Ville', max_length=100)
     postal_code = models.CharField('Code postal', max_length=20)
@@ -55,8 +81,8 @@ class SiteSettings(models.Model):
     latitude = models.DecimalField('Latitude', max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField('Longitude', max_digits=9, decimal_places=6, null=True, blank=True)
 
-    logo_url = models.URLField('URL logo', blank=True)
-    hero_image_url = models.URLField('URL image hero', blank=True)
+    logo_url = models.CharField('URL logo', max_length=500, blank=True)
+    hero_image_url = models.CharField('URL image hero', max_length=500, blank=True)
 
     google_rating = models.DecimalField('Note Google', max_digits=2, decimal_places=1, default=5.0)
     google_review_count = models.PositiveIntegerField('Nombre d\'avis Google', default=0)
@@ -85,7 +111,7 @@ class SiteSettings(models.Model):
 class Service(TranslatedModelMixin):
     icon = models.CharField('Icône (emoji ou nom)', max_length=50, default='🔧')
     image = models.ImageField('Image', upload_to='services/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     order = models.PositiveIntegerField('Ordre', default=0)
     is_active = models.BooleanField('Actif', default=True)
 
@@ -105,7 +131,7 @@ class NewsArticle(TranslatedModelMixin):
     content_nl = models.TextField('Contenu (NL)', blank=True)
 
     image = models.ImageField('Image', upload_to='news/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     is_published = models.BooleanField('Publié', default=True)
     published_at = models.DateTimeField('Date de publication', auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -173,7 +199,7 @@ class UsedVehicle(TranslatedModelMixin):
     transmission = models.CharField('Boîte', max_length=20, choices=TRANSMISSION_CHOICES, default='manual')
     price = models.DecimalField('Prix (€)', max_digits=12, decimal_places=2)
     image = models.ImageField('Image', upload_to='vehicles/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     is_active = models.BooleanField('Visible sur le site', default=True)
     is_sold = models.BooleanField('Vendu', default=False)
     order = models.PositiveIntegerField('Ordre', default=0)
@@ -198,6 +224,22 @@ class UsedVehicle(TranslatedModelMixin):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class WhyChooseItem(models.Model):
+    text_fr = models.CharField('Texte (FR)', max_length=500)
+    text_de = models.CharField('Texte (DE)', max_length=500, blank=True)
+    text_nl = models.CharField('Texte (NL)', max_length=500, blank=True)
+    order = models.PositiveIntegerField('Ordre', default=0)
+    is_active = models.BooleanField('Actif', default=True)
+
+    class Meta:
+        ordering = ['order', 'pk']
+        verbose_name = 'Argument « Pourquoi nous choisir »'
+        verbose_name_plural = 'Arguments « Pourquoi nous choisir »'
+
+    def __str__(self):
+        return self.text_fr[:60]
 
 
 class CustomerReview(models.Model):

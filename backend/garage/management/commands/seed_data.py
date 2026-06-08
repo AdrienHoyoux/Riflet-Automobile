@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from garage.models import CustomerReview, NewsArticle, Service, SiteSettings
+from garage.models import CustomerReview, NewsArticle, Service, SiteSettings, WhyChooseItem
 
 User = get_user_model()
 
@@ -47,6 +47,7 @@ class Command(BaseCommand):
         self._create_admin()
         self._create_settings()
         self._create_services()
+        self._create_why_items()
         self._create_welcome_news()
         self._create_reviews()
         self.stdout.write(self.style.SUCCESS('Données initialisées avec succès.'))
@@ -94,6 +95,31 @@ class Command(BaseCommand):
                 'professionals, ongeacht het merk van uw voertuig. '
                 '100 % aanbevolen door onze klanten op Facebook.'
             ),
+            about_title_fr='À propos',
+            about_title_de='Über uns',
+            about_title_nl='Over ons',
+            about_subtitle_fr='Découvrez Riflet Automobile, votre garage toutes marques à Malmedy.',
+            about_subtitle_de='Entdecken Sie Riflet Automobile, Ihre markenunabhängige Werkstatt in Malmedy.',
+            about_subtitle_nl='Ontdek Riflet Automobile, uw garage alle merken in Malmedy.',
+            about_image_url=(
+                'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6'
+                '?auto=format&fit=crop&w=1400&q=80'
+            ),
+            home_services_title_fr='Nos services',
+            home_services_title_de='Unsere Dienstleistungen',
+            home_services_title_nl='Onze diensten',
+            home_services_subtitle_fr='Entretien, réparation et vente de véhicules toutes marques à Malmedy.',
+            home_services_subtitle_de='Wartung, Reparatur und Fahrzeugverkauf aller Marken in Malmedy.',
+            home_services_subtitle_nl='Onderhoud, reparatie en verkoop van voertuigen alle merken in Malmedy.',
+            home_why_title_fr='Pourquoi nous choisir ?',
+            home_why_title_de='Warum uns wählen?',
+            home_why_title_nl='Waarom voor ons kiezen?',
+            services_title_fr='Nos services',
+            services_title_de='Unsere Dienstleistungen',
+            services_title_nl='Onze diensten',
+            services_subtitle_fr='Des prestations complètes pour votre véhicule toutes marques, particuliers et professionnels.',
+            services_subtitle_de='Umfassende Leistungen für Ihr Fahrzeug aller Marken, für Privat- und Geschäftskunden.',
+            services_subtitle_nl='Volledige diensten voor uw voertuig alle merken, particulieren en professionals.',
             address='Avenue de Norvège 3',
             city='Malmedy',
             postal_code='4960',
@@ -244,6 +270,42 @@ class Command(BaseCommand):
         self.stdout.write(
             f'Services : {created_count} créé(s), '
             f'{len(services) - created_count} déjà présent(s) — conservé(s).',
+        )
+
+    def _create_why_items(self):
+        items = [
+            {
+                'order': 1,
+                'text_fr': 'Garage indépendant toutes marques — particuliers et professionnels',
+                'text_de': 'Unabhängige Werkstatt aller Marken — Privat- und Geschäftskunden',
+                'text_nl': 'Onafhankelijke garage alle merken — particulieren en professionals',
+            },
+            {
+                'order': 2,
+                'text_fr': 'Service de qualité recommandé par nos clients',
+                'text_de': 'Qualitätsservice, empfohlen von unseren Kunden',
+                'text_nl': 'Kwaliteitsservice aanbevolen door onze klanten',
+            },
+            {
+                'order': 3,
+                'text_fr': 'Situé à Malmedy, au cœur des Ardennes',
+                'text_de': 'In Malmedy, im Herzen der Ardennen gelegen',
+                'text_nl': 'Gelegen in Malmedy, in het hart van de Ardennen',
+            },
+        ]
+
+        created_count = 0
+        for data in items:
+            _, created = WhyChooseItem.objects.get_or_create(
+                text_fr=data['text_fr'],
+                defaults={**data, 'is_active': True},
+            )
+            if created:
+                created_count += 1
+
+        self.stdout.write(
+            f'Arguments « Pourquoi nous choisir » : {created_count} créé(s), '
+            f'{len(items) - created_count} déjà présent(s) — conservé(s).',
         )
 
     def _create_welcome_news(self):

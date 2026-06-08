@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
+from .models import ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 
 
 @admin.register(SiteSettings)
@@ -12,6 +12,26 @@ class SiteSettingsAdmin(admin.ModelAdmin):
                 ('tagline_fr', 'tagline_de', 'tagline_nl'),
                 ('about_fr', 'about_de', 'about_nl'),
                 ('logo_url', 'hero_image_url'),
+            ),
+        }),
+        ('Page À propos', {
+            'fields': (
+                ('about_title_fr', 'about_title_de', 'about_title_nl'),
+                ('about_subtitle_fr', 'about_subtitle_de', 'about_subtitle_nl'),
+                'about_image_url',
+            ),
+        }),
+        ('Accueil — sections', {
+            'fields': (
+                ('home_services_title_fr', 'home_services_title_de', 'home_services_title_nl'),
+                ('home_services_subtitle_fr', 'home_services_subtitle_de', 'home_services_subtitle_nl'),
+                ('home_why_title_fr', 'home_why_title_de', 'home_why_title_nl'),
+            ),
+        }),
+        ('Page Services', {
+            'fields': (
+                ('services_title_fr', 'services_title_de', 'services_title_nl'),
+                ('services_subtitle_fr', 'services_subtitle_de', 'services_subtitle_nl'),
             ),
         }),
         ('Coordonnées', {
@@ -61,6 +81,14 @@ class ServiceAdmin(admin.ModelAdmin):
         ('Descriptions', {'fields': ('description_fr', 'description_de', 'description_nl')}),
         ('Affichage', {'fields': ('icon', 'image', 'image_url', 'order', 'is_active')}),
     )
+
+
+@admin.register(WhyChooseItem)
+class WhyChooseItemAdmin(admin.ModelAdmin):
+    list_display = ('text_fr', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('text_fr', 'text_de', 'text_nl')
 
 
 @admin.register(NewsArticle)

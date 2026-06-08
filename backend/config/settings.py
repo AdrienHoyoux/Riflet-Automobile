@@ -91,6 +91,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+PUBLIC_SITE_URL = os.getenv(
+    'PUBLIC_SITE_URL',
+    os.getenv('NUXT_PUBLIC_SITE_URL', 'http://localhost:3000'),
+).rstrip('/')
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
