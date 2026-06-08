@@ -17,7 +17,10 @@ class FlexibleURLField(serializers.CharField):
         super().__init__(**kwargs)
 
 
-from .media_urls import normalize_media_path, public_media_url = re.compile(
+from .media_urls import public_media_url
+
+
+PHONE_REGEX = re.compile(
     r'^(?:'
     r'\+32[\s./-]?(?:\d[\s./-]?){8,12}|'
     r'0032[\s./-]?(?:\d[\s./-]?){8,12}|'
