@@ -34,6 +34,9 @@ export const VOLVO_IMAGES = {
   ],
 } as const
 
+/** Image Open Graph par défaut (partages réseaux sociaux) — URL HTTPS stable */
+export const OG_DEFAULT_IMAGE = VOLVO_IMAGES.hero
+
 export function getServiceImage(order: number, uploaded?: string | null) {
   if (uploaded) return resolveImageUrl(uploaded)
   const index = Math.max(0, order - 1) % VOLVO_IMAGES.services.length

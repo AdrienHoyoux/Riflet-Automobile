@@ -8,6 +8,7 @@ import type {
   UsedVehicle,
   WhyChooseItem,
 } from '~/types/api'
+import { OG_DEFAULT_IMAGE } from '~/utils/images'
 
 export function useApiBase() {
   const config = useRuntimeConfig()
@@ -94,7 +95,8 @@ export async function submitContact(form: ContactFormData) {
 
 export function useSeoMetaTags(title: string, description: string, image?: string) {
   const config = useRuntimeConfig()
-  const siteUrl = config.public.siteUrl as string
+  const siteUrl = (config.public.siteUrl as string).replace(/\/$/, '')
+  const route = useRoute()
   const { locale } = useI18n()
 
   useSeoMeta({
@@ -102,17 +104,14 @@ export function useSeoMetaTags(title: string, description: string, image?: strin
     description,
     ogTitle: title,
     ogDescription: description,
-    ogImage: image || `${siteUrl}/og-default.jpg`,
+    ogType: 'website',
+    ogUrl: `${siteUrl}${route.fullPath}`,
+    ogImage: image || OG_DEFAULT_IMAGE,
     ogLocale: locale.value === 'fr' ? 'fr_BE' : locale.value === 'de' ? 'de_BE' : 'nl_BE',
     twitterCard: 'summary_large_image',
     twitterTitle: title,
     twitterDescription: description,
-  })
-
-  useHead({
-    link: [
-      { rel: 'canonical', href: `${siteUrl}${useRoute().fullPath}` },
-    ],
+    twitterImage: image || OG_DEFAULT_IMAGE,
   })
 }
 
