@@ -88,7 +88,7 @@
 
 <script setup lang="ts">
 import type { NewsArticle } from '~/types/api'
-import { formatAdminError, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
+import { formatAdminError, imageUrlFromPreview, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
@@ -107,6 +107,8 @@ interface AdminNews {
   content_fr: string
 
   image_url: string
+
+  image_preview?: string | null
 
   is_published: boolean
 
@@ -217,7 +219,7 @@ function editArticle(article: AdminNews) {
 
     content_fr: article.content_fr || '',
 
-    image_url: article.image_url || '',
+    image_url: imageUrlFromPreview(article.image_preview, article.image_url),
 
     is_published: article.is_published,
 

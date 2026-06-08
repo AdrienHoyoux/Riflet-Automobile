@@ -57,12 +57,13 @@ class AdminUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not uploaded.content_type.startswith('image/'):
-            return Response({'detail': 'Le fichier doit être une image.'}, status=status.HTTP_400_BAD_REQUEST)
-
         ext = os.path.splitext(uploaded.name)[1].lower()
         if ext not in self.ALLOWED_EXTENSIONS:
             return Response({'detail': 'Format non supporté (jpg, png, webp, gif).'}, status=status.HTTP_400_BAD_REQUEST)
+
+        content_type = getattr(uploaded, 'content_type', '') or ''
+        if content_type and not content_type.startswith('image/'):
+            return Response({'detail': 'Le fichier doit être une image.'}, status=status.HTTP_400_BAD_REQUEST)
 
         filename = f'{uuid.uuid4().hex}{ext}'
         saved_path = default_storage.save(f'{folder}/{filename}', uploaded)

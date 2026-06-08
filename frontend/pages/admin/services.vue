@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import type { Service } from '~/types/api'
-import { formatAdminError, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
+import { formatAdminError, imageUrlFromPreview, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
 import { ADMIN_DEFAULTS } from '~/utils/adminDefaults'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -183,7 +183,7 @@ function startCreate() {
 function editService(service: AdminService) {
   editing.value = {
     ...service,
-    image_url: service.image_url || '',
+    image_url: imageUrlFromPreview(service.image_preview, service.image_url),
   }
   error.value = ''
 }

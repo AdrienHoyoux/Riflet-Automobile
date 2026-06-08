@@ -41,7 +41,7 @@ class SiteSettings(models.Model):
     about_subtitle_fr = models.CharField('Sous-titre page À propos (FR)', max_length=500, blank=True)
     about_subtitle_de = models.CharField('Sous-titre page À propos (DE)', max_length=500, blank=True)
     about_subtitle_nl = models.CharField('Sous-titre page À propos (NL)', max_length=500, blank=True)
-    about_image_url = models.URLField('URL image page À propos', blank=True)
+    about_image_url = models.CharField('URL image page À propos', max_length=500, blank=True)
 
     home_services_title_fr = models.CharField('Titre section services accueil (FR)', max_length=255, blank=True)
     home_services_title_de = models.CharField('Titre section services accueil (DE)', max_length=255, blank=True)
@@ -81,8 +81,8 @@ class SiteSettings(models.Model):
     latitude = models.DecimalField('Latitude', max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField('Longitude', max_digits=9, decimal_places=6, null=True, blank=True)
 
-    logo_url = models.URLField('URL logo', blank=True)
-    hero_image_url = models.URLField('URL image hero', blank=True)
+    logo_url = models.CharField('URL logo', max_length=500, blank=True)
+    hero_image_url = models.CharField('URL image hero', max_length=500, blank=True)
 
     google_rating = models.DecimalField('Note Google', max_digits=2, decimal_places=1, default=5.0)
     google_review_count = models.PositiveIntegerField('Nombre d\'avis Google', default=0)
@@ -111,7 +111,7 @@ class SiteSettings(models.Model):
 class Service(TranslatedModelMixin):
     icon = models.CharField('Icône (emoji ou nom)', max_length=50, default='🔧')
     image = models.ImageField('Image', upload_to='services/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     order = models.PositiveIntegerField('Ordre', default=0)
     is_active = models.BooleanField('Actif', default=True)
 
@@ -131,7 +131,7 @@ class NewsArticle(TranslatedModelMixin):
     content_nl = models.TextField('Contenu (NL)', blank=True)
 
     image = models.ImageField('Image', upload_to='news/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     is_published = models.BooleanField('Publié', default=True)
     published_at = models.DateTimeField('Date de publication', auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -199,7 +199,7 @@ class UsedVehicle(TranslatedModelMixin):
     transmission = models.CharField('Boîte', max_length=20, choices=TRANSMISSION_CHOICES, default='manual')
     price = models.DecimalField('Prix (€)', max_digits=12, decimal_places=2)
     image = models.ImageField('Image', upload_to='vehicles/', blank=True, null=True)
-    image_url = models.URLField('URL image externe', blank=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
     is_active = models.BooleanField('Visible sur le site', default=True)
     is_sold = models.BooleanField('Vendu', default=False)
     order = models.PositiveIntegerField('Ordre', default=0)

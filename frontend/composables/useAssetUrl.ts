@@ -10,6 +10,12 @@ export function resolveImageUrl(url: string | null | undefined): string {
   return `${config.public.siteUrl}${url}`
 }
 
+/** Extrait un chemin /media/... depuis une URL absolue ou relative. */
+export function imageUrlFromPreview(preview: string | null | undefined, stored?: string | null): string {
+  if (stored?.trim()) return stored
+  return normalizeImageUrlForStorage(preview)
+}
+
 /** Prépare une URL image pour l'enregistrement (chemins /media/... conservés). */
 export function normalizeImageUrlForStorage(url: string | null | undefined): string {
   if (!url) return ''
