@@ -1,11 +1,34 @@
 <template>
   <div>
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="font-display text-4xl">Services</h1>
-        <p class="mt-2 text-sm text-smoke">Gérez les prestations affichées sur l'accueil et la page Services.</p>
+    <AdminSectionHeader
+      eyebrow="Contenu du site"
+      title="Page Services"
+      description="Deux parties distinctes : l'en-tête de la page /services, puis la liste des prestations (cartes visibles aussi sur l'accueil). Le titre du bloc services sur l'accueil se modifie dans « Page d'accueil »."
+      page-url="/services"
+    />
+
+    <form v-if="settingsForm" class="mt-8 space-y-6" @submit.prevent="saveSettings">
+      <AdminI18nBlock
+        :form="settingsForm"
+        title="En-tête de la page /services"
+        help="Grand titre et introduction en haut de la page Services (pas les cartes individuelles)."
+        title-prefix="services_title"
+        subtitle-prefix="services_subtitle"
+        :defaults="ADMIN_DEFAULTS.servicesPage"
+      />
+      <AdminSaveBar :message="settingsMessage" :error="settingsError" :saving="settingsSaving" />
+    </form>
+
+    <div class="mt-12 border-t-2 border-ink pt-10">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display text-3xl">Liste des prestations</h2>
+          <p class="mt-2 text-sm text-smoke">
+            Chaque carte = un service (entretien, pneus, etc.). Ordre et visibilité modifiables.
+          </p>
+        </div>
+        <button type="button" class="btn-primary" @click="startCreate">Ajouter un service</button>
       </div>
-      <button type="button" class="btn-primary" @click="startCreate">Ajouter un service</button>
     </div>
 
     <form v-if="editing" class="card mt-8 space-y-4" @submit.prevent="saveService">
@@ -75,8 +98,18 @@
 <script setup lang="ts">
 import type { Service } from '~/types/api'
 import { formatAdminError, normalizeImageUrlForStorage, resolveImageUrl } from '~/composables/useAssetUrl'
+import { ADMIN_DEFAULTS } from '~/utils/adminDefaults'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
+
+const {
+  form: settingsForm,
+  saving: settingsSaving,
+  message: settingsMessage,
+  error: settingsError,
+  loadSettings,
+  saveSettings,
+} = useAdminSettingsForm()
 
 interface AdminService extends Service {
   id?: number
@@ -136,7 +169,10 @@ function buildPayload(service: AdminService) {
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await loadSettings()
+  await load()
+})
 
 async function load() {
   services.value = await adminFetch<AdminService[]>('services/')
