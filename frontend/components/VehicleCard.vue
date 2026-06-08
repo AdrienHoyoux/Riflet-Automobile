@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import type { UsedVehicle } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { UNSPLASH_IMAGES } from '~/utils/images'
 
 const props = defineProps<{ vehicle: UsedVehicle }>()
@@ -36,7 +37,7 @@ const { locale, t } = useI18n()
 
 const title = computed(() => useLocalizedField(props.vehicle, 'title'))
 const description = computed(() => useLocalizedField(props.vehicle, 'description'))
-const imageSrc = computed(() => props.vehicle.image || UNSPLASH_IMAGES.usedCars)
+const imageSrc = computed(() => resolveImageUrl(props.vehicle.image) || UNSPLASH_IMAGES.usedCars)
 const formattedPrice = computed(() =>
   new Intl.NumberFormat(locale.value === 'fr' ? 'fr-BE' : locale.value === 'de' ? 'de-BE' : 'nl-BE', {
     style: 'currency',

@@ -1,3 +1,5 @@
+import { resolveImageUrl } from '~/composables/useAssetUrl'
+
 /** Logo officiel Riflet Automobile (photo de profil Facebook) — copie locale stable */
 export const LOGO_URL = '/images/riflet-logo.jpg'
 
@@ -33,7 +35,7 @@ export const VOLVO_IMAGES = {
 } as const
 
 export function getServiceImage(order: number, uploaded?: string | null) {
-  if (uploaded) return uploaded
+  if (uploaded) return resolveImageUrl(uploaded)
   const index = Math.max(0, order - 1) % VOLVO_IMAGES.services.length
   return VOLVO_IMAGES.services[index]
 }
@@ -41,4 +43,3 @@ export function getServiceImage(order: number, uploaded?: string | null) {
 export function getNewsFallback(index: number) {
   return index % 2 === 0 ? VOLVO_IMAGES.newsPrimary : VOLVO_IMAGES.newsSecondary
 }
-

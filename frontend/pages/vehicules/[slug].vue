@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import type { UsedVehicle } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { UNSPLASH_IMAGES } from '~/utils/images'
 
 const route = useRoute()
@@ -45,7 +46,7 @@ if (!vehicle.value) {
 
 const title = computed(() => useLocalizedField(vehicle.value as UsedVehicle, 'title'))
 const description = computed(() => useLocalizedField(vehicle.value as UsedVehicle, 'description'))
-const imageSrc = computed(() => vehicle.value?.image || UNSPLASH_IMAGES.usedCars)
+const imageSrc = computed(() => resolveImageUrl(vehicle.value?.image) || UNSPLASH_IMAGES.usedCars)
 const formattedPrice = computed(() =>
   new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(vehicle.value!.price)),
 )

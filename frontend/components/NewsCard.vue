@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { NewsArticle } from '~/types/api'
+import { resolveImageUrl } from '~/composables/useAssetUrl'
 import { getNewsFallback } from '~/utils/images'
 
 const props = defineProps<{
@@ -43,7 +44,7 @@ const title = computed(() => useLocalizedField(props.article, 'title'))
 const description = computed(() => useLocalizedField(props.article, 'description'))
 const formattedDate = computed(() => formatDate(props.article.published_at, locale.value))
 const imageSrc = computed(() =>
-  props.article.image || getNewsFallback(props.index ?? props.article.id),
+  resolveImageUrl(props.article.image) || getNewsFallback(props.index ?? props.article.id),
 )
 
 onMounted(() => {

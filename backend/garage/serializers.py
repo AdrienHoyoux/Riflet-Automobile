@@ -17,17 +17,7 @@ class FlexibleURLField(serializers.CharField):
         super().__init__(**kwargs)
 
 
-def absolute_media_url(request, url):
-    if not url:
-        return None
-    if url.startswith(('http://', 'https://')):
-        return url
-    if request and url.startswith('/'):
-        return request.build_absolute_uri(url)
-    return url
-
-
-PHONE_REGEX = re.compile(
+from .media_urls import normalize_media_path, public_media_url = re.compile(
     r'^(?:'
     r'\+32[\s./-]?(?:\d[\s./-]?){8,12}|'
     r'0032[\s./-]?(?:\d[\s./-]?){8,12}|'
@@ -45,9 +35,8 @@ PHONE_REGEX = re.compile(
 
 def resolve_model_image(request, obj):
     if obj.image:
-        url = obj.image.url
-        return request.build_absolute_uri(url) if request else url
-    return absolute_media_url(request, obj.image_url)
+        return public_media_url(obj.image.url)
+    return public_media_url(obj.image_url)
 
 
 SITE_CONTENT_FIELDS = [

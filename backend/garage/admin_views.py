@@ -17,6 +17,7 @@ from .mfa import (
     verify_pending_token,
     verify_totp,
 )
+from .media_urls import normalize_media_path
 from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 from .serializers import (
     AdminContactMessageSerializer,
@@ -68,9 +69,12 @@ class AdminUploadView(APIView):
         filename = f'{uuid.uuid4().hex}{ext}'
         saved_path = default_storage.save(f'{folder}/{filename}', uploaded)
         url = default_storage.url(saved_path)
+        from django.conf import settings
+
+        absolute = f'{settings.PUBLIC_SITE_URL}{url}' if url.startswith('/') else url
         return Response({
-            'url': url,
-            'absolute_url': request.build_absolute_uri(url),
+            'url': normalize_media_path(url),
+            'absolute_url': absolute,
         }, status=status.HTTP_201_CREATED)
 
 
