@@ -2,16 +2,18 @@
   <div v-if="vehicle">
     <section class="border-b-2 border-ink bg-ink py-16 text-chalk lg:py-24">
       <div class="container-custom grid gap-8 lg:grid-cols-2 lg:items-start">
-        <div>
+        <div class="order-2 min-w-0 lg:order-1">
+          <VehicleGallery :images="galleryImages" :alt="title" />
+        </div>
+        <div class="order-1 lg:order-2">
           <p class="text-[10px] font-bold uppercase tracking-street text-acid">{{ $t('nav.vehicles') }}</p>
           <h1 class="mt-4 font-display text-5xl leading-none lg:text-6xl">{{ title }}</h1>
           <p class="mt-4 text-sm text-chalk/80">{{ vehicle.year }} · {{ formattedMileage }} · {{ fuelLabel }} · {{ transmissionLabel }}</p>
           <p v-if="vehicle.is_sold" class="mt-4 inline-block bg-chalk px-3 py-1 text-[10px] font-bold uppercase tracking-street text-ink">
             {{ $t('vehicles.sold') }}
           </p>
-          <p class="mt-6 font-display text-4xl text-acid">{{ formattedPrice }}</p>
+          <p class="mt-6 font-display text-3xl text-acid sm:text-4xl">{{ formattedPrice }}</p>
         </div>
-        <VehicleGallery :images="galleryImages" :alt="title" />
       </div>
     </section>
 
