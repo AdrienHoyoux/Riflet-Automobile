@@ -1,87 +1,118 @@
 <template>
-  <form class="space-y-5" novalidate @submit.prevent="handleSubmit">
-    <div class="grid gap-5 sm:grid-cols-2">
+  <div>
+    <div
+      v-if="vehicleSold"
+      class="border-2 border-ink bg-ink px-4 py-4 text-sm text-chalk"
+    >
+      <p class="font-bold">{{ $t('vehicles.contact_sold_title') }}</p>
+      <p class="mt-2 text-chalk/80">{{ $t('vehicles.contact_sold_text') }}</p>
+      <NuxtLinkLocale to="/vehicules" class="btn-primary mt-4 inline-flex !text-xs">
+        {{ $t('vehicles.contact_sold_cta') }}
+      </NuxtLinkLocale>
+    </div>
+
+    <template v-else>
+    <div
+      v-if="vehicle"
+      class="mb-6 border-2 border-ink bg-acid/20 px-4 py-3 text-sm text-ink"
+    >
+      <p class="text-[10px] font-bold uppercase tracking-street">
+        {{ $t('contact.form.vehicle_context') }}
+      </p>
+      <p class="mt-1 font-bold">{{ vehicleTitle }}</p>
+      <NuxtLinkLocale
+        :to="`/vehicules/${vehicle.slug}`"
+        class="mt-2 inline-block text-xs font-bold uppercase tracking-street underline-offset-4 hover:underline"
+      >
+        {{ $t('vehicles.details') }} →
+      </NuxtLinkLocale>
+    </div>
+
+    <form class="space-y-5" novalidate @submit.prevent="handleSubmit">
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="name" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+            {{ $t('contact.form.name') }} *
+          </label>
+          <input
+            id="name"
+            v-model="form.name"
+            type="text"
+            required
+            class="input-field"
+          >
+        </div>
+        <div>
+          <label for="email" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+            {{ $t('contact.form.email') }} *
+          </label>
+          <input
+            id="email"
+            v-model="form.email"
+            type="email"
+            required
+            class="input-field"
+          >
+        </div>
+      </div>
+
       <div>
-        <label for="name" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
-          {{ $t('contact.form.name') }} *
+        <label for="phone" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+          {{ $t('contact.form.phone') }}
         </label>
         <input
-          id="name"
-          v-model="form.name"
+          id="phone"
+          v-model="form.phone"
+          type="tel"
+          :pattern="phonePattern"
+          class="input-field"
+        >
+      </div>
+
+      <div>
+        <label for="subject" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+          {{ $t('contact.form.subject') }} *
+        </label>
+        <input
+          id="subject"
+          v-model="form.subject"
           type="text"
           required
           class="input-field"
         >
       </div>
+
       <div>
-        <label for="email" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
-          {{ $t('contact.form.email') }} *
+        <label for="message" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
+          {{ $t('contact.form.message') }} *
         </label>
-        <input
-          id="email"
-          v-model="form.email"
-          type="email"
+        <textarea
+          id="message"
+          v-model="form.message"
           required
-          class="input-field"
-        >
+          rows="8"
+          minlength="10"
+          class="input-field resize-y"
+        />
       </div>
-    </div>
 
-    <div>
-      <label for="phone" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
-        {{ $t('contact.form.phone') }}
-      </label>
-      <input
-        id="phone"
-        v-model="form.phone"
-        type="tel"
-        :pattern="phonePattern"
-        class="input-field"
+      <div v-if="successMessage" class="border-2 border-ink bg-acid px-4 py-3 text-sm font-medium text-ink">
+        {{ successMessage }}
+      </div>
+      <div v-if="errorMessage" class="border-2 border-ink bg-ink px-4 py-3 text-sm font-medium text-chalk">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary w-full sm:w-auto"
+        :disabled="loading"
       >
-    </div>
-
-    <div>
-      <label for="subject" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
-        {{ $t('contact.form.subject') }} *
-      </label>
-      <input
-        id="subject"
-        v-model="form.subject"
-        type="text"
-        required
-        class="input-field"
-      >
-    </div>
-
-    <div>
-      <label for="message" class="mb-2 block text-[10px] font-bold uppercase tracking-street text-ink">
-        {{ $t('contact.form.message') }} *
-      </label>
-      <textarea
-        id="message"
-        v-model="form.message"
-        required
-        rows="5"
-        minlength="10"
-        class="input-field resize-y"
-      />
-    </div>
-
-    <div v-if="successMessage" class="border-2 border-ink bg-acid px-4 py-3 text-sm font-medium text-ink">
-      {{ successMessage }}
-    </div>
-    <div v-if="errorMessage" class="border-2 border-ink bg-ink px-4 py-3 text-sm font-medium text-chalk">
-      {{ errorMessage }}
-    </div>
-
-    <button
-      type="submit"
-      class="btn-primary w-full sm:w-auto"
-      :disabled="loading"
-    >
-      {{ loading ? $t('contact.form.sending') : $t('contact.form.submit') }}
-    </button>
-  </form>
+        {{ loading ? $t('contact.form.sending') : $t('contact.form.submit') }}
+      </button>
+    </form>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -89,7 +120,9 @@ import type { ContactFormData } from '~/types/api'
 import { formatApiErrors } from '~/utils/formErrors'
 import { isValidPhone, PHONE_REGEX } from '~/utils/phone'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const { vehicle, vehicleSold, buildPrefill } = useVehicleContactPrefill()
+
 const loading = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
@@ -104,7 +137,26 @@ const form = reactive<ContactFormData>({
   message: '',
 })
 
+const vehicleTitle = computed(() =>
+  vehicle.value ? getLocalizedField(vehicle.value, 'title', locale.value) : '',
+)
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function applyVehiclePrefill() {
+  if (!vehicle.value) return
+  const prefill = buildPrefill(vehicle.value)
+  form.subject = prefill.subject
+  form.message = prefill.message
+}
+
+watch(vehicle, (value) => {
+  if (value) applyVehiclePrefill()
+})
+
+watch(locale, () => {
+  if (vehicle.value) applyVehiclePrefill()
+})
 
 function validateForm(): string | null {
   if (!form.name.trim()) {
@@ -151,6 +203,18 @@ function getSubmitErrorMessage(err: unknown): string {
   return t('contact.form.error')
 }
 
+function resetFormFields() {
+  form.name = ''
+  form.email = ''
+  form.phone = ''
+  if (vehicle.value) {
+    applyVehiclePrefill()
+  } else {
+    form.subject = ''
+    form.message = ''
+  }
+}
+
 async function handleSubmit() {
   loading.value = true
   successMessage.value = ''
@@ -164,13 +228,12 @@ async function handleSubmit() {
   }
 
   try {
-    await submitContact(form)
+    await submitContact({
+      ...form,
+      vehicle_slug: vehicle.value?.slug,
+    })
     successMessage.value = t('contact.form.success')
-    form.name = ''
-    form.email = ''
-    form.phone = ''
-    form.subject = ''
-    form.message = ''
+    resetFormFields()
   } catch (err: unknown) {
     errorMessage.value = getSubmitErrorMessage(err)
   } finally {

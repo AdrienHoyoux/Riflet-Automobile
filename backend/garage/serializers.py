@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
+from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, VehicleImage, WhyChooseItem
 
 
 class FlexibleURLField(serializers.CharField):
@@ -40,6 +40,50 @@ def resolve_model_image(request, obj):
     if obj.image:
         return public_media_url(obj.image.url)
     return public_media_url(obj.image_url)
+
+
+def resolve_vehicle_image(image_obj):
+    if image_obj.image:
+        return public_media_url(image_obj.image.url)
+    return public_media_url(image_obj.image_url)
+
+
+def vehicle_gallery_urls(vehicle):
+    gallery = list(vehicle.gallery_images.all())
+    if gallery:
+        return [url for url in (resolve_vehicle_image(item) for item in gallery) if url]
+    primary = resolve_model_image(None, vehicle)
+    return [primary] if primary else []
+
+
+def vehicle_gallery_storage_urls(vehicle):
+    gallery = list(vehicle.gallery_images.all())
+    if gallery:
+        urls = []
+        for item in gallery:
+            if item.image_url:
+                urls.append(item.image_url)
+            elif item.image:
+                urls.append(item.image.url)
+        return urls
+    if vehicle.image_url:
+        return [vehicle.image_url]
+    if vehicle.image:
+        return [vehicle.image.url]
+    return []
+
+
+def sync_vehicle_gallery(vehicle, urls):
+    cleaned = [url.strip() for url in urls if url and str(url).strip()]
+    vehicle.gallery_images.all().delete()
+    for order, url in enumerate(cleaned):
+        VehicleImage.objects.create(vehicle=vehicle, image_url=url, order=order)
+
+    first_url = cleaned[0] if cleaned else ''
+    vehicle.image_url = first_url
+    if first_url:
+        vehicle.image = None
+    vehicle.save(update_fields=['image_url', 'image'])
 
 
 SITE_CONTENT_FIELDS = [
@@ -117,9 +161,11 @@ class WhyChooseItemSerializer(serializers.ModelSerializer):
 
 
 class ContactMessageSerializer(serializers.ModelSerializer):
+    vehicle_slug = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
     class Meta:
         model = ContactMessage
-        fields = ['name', 'email', 'phone', 'subject', 'message']
+        fields = ['name', 'email', 'phone', 'subject', 'message', 'vehicle_slug']
 
     def validate_message(self, value):
         if len(value.strip()) < 10:
@@ -134,6 +180,27 @@ class ContactMessageSerializer(serializers.ModelSerializer):
                 '06 12 34 56 78 (FR), 621 123 456 (LU), 06 12345678 (NL).'
             )
         return value
+
+    def validate(self, attrs):
+        slug = (attrs.pop('vehicle_slug', '') or '').strip()
+        if not slug:
+            attrs['vehicle'] = None
+            return attrs
+
+        try:
+            vehicle = UsedVehicle.objects.get(slug=slug, is_active=True)
+        except UsedVehicle.DoesNotExist:
+            raise serializers.ValidationError({
+                'vehicle_slug': 'Ce véhicule est introuvable ou n\'est plus disponible.',
+            })
+
+        if vehicle.is_sold:
+            raise serializers.ValidationError({
+                'vehicle_slug': 'Ce véhicule a été vendu. Le formulaire de contact n\'est plus disponible pour cette annonce.',
+            })
+
+        attrs['vehicle'] = vehicle
+        return attrs
 
 
 class CustomerReviewSerializer(serializers.ModelSerializer):
@@ -187,6 +254,7 @@ class PublicReviewSubmitSerializer(serializers.Serializer):
 
 class UsedVehicleSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = UsedVehicle
@@ -195,11 +263,15 @@ class UsedVehicleSerializer(serializers.ModelSerializer):
             'fuel_type', 'transmission', 'price',
             'title_fr', 'title_de', 'title_nl',
             'description_fr', 'description_de', 'description_nl',
-            'image', 'is_sold', 'order',
+            'image', 'images', 'is_sold', 'order',
         ]
 
+    def get_images(self, obj):
+        return vehicle_gallery_urls(obj)
+
     def get_image(self, obj):
-        return resolve_model_image(self.context.get('request'), obj)
+        images = self.get_images(obj)
+        return images[0] if images else None
 
 
 class AdminSiteSettingsSerializer(serializers.ModelSerializer):
@@ -266,6 +338,12 @@ class AdminUsedVehicleSerializer(serializers.ModelSerializer):
     image_url = FlexibleURLField(required=False)
     image = serializers.ImageField(required=False, allow_null=True)
     image_preview = serializers.SerializerMethodField()
+    gallery_urls = serializers.ListField(
+        child=FlexibleURLField(),
+        required=False,
+        write_only=True,
+    )
+    gallery = serializers.SerializerMethodField()
 
     class Meta:
         model = UsedVehicle
@@ -274,9 +352,10 @@ class AdminUsedVehicleSerializer(serializers.ModelSerializer):
             'fuel_type', 'transmission', 'price',
             'title_fr', 'title_de', 'title_nl',
             'description_fr', 'description_de', 'description_nl',
-            'image', 'image_url', 'image_preview', 'is_active', 'is_sold', 'order',
+            'image', 'image_url', 'image_preview', 'gallery', 'gallery_urls',
+            'is_active', 'is_sold', 'order',
         ]
-        read_only_fields = ['slug', 'image_preview']
+        read_only_fields = ['slug', 'image_preview', 'gallery']
 
     def validate_price(self, value):
         if value is not None and value > Decimal('9999999999.99'):
@@ -284,7 +363,29 @@ class AdminUsedVehicleSerializer(serializers.ModelSerializer):
         return value
 
     def get_image_preview(self, obj):
-        return resolve_model_image(self.context.get('request'), obj)
+        images = vehicle_gallery_urls(obj)
+        return images[0] if images else resolve_model_image(self.context.get('request'), obj)
+
+    def get_gallery(self, obj):
+        return vehicle_gallery_storage_urls(obj)
+
+    def create(self, validated_data):
+        gallery_urls = validated_data.pop('gallery_urls', None)
+        instance = super().create(validated_data)
+        if gallery_urls is not None:
+            sync_vehicle_gallery(instance, gallery_urls)
+        elif instance.image_url or instance.image:
+            storage_urls = vehicle_gallery_storage_urls(instance)
+            if storage_urls:
+                sync_vehicle_gallery(instance, storage_urls)
+        return instance
+
+    def update(self, instance, validated_data):
+        gallery_urls = validated_data.pop('gallery_urls', None)
+        instance = super().update(instance, validated_data)
+        if gallery_urls is not None:
+            sync_vehicle_gallery(instance, gallery_urls)
+        return instance
 
 
 class AdminServiceSerializer(serializers.ModelSerializer):
@@ -313,10 +414,29 @@ class AdminWhyChooseItemSerializer(serializers.ModelSerializer):
 
 
 class AdminContactMessageSerializer(serializers.ModelSerializer):
+    vehicle = serializers.SerializerMethodField()
+
     class Meta:
         model = ContactMessage
-        fields = ['id', 'name', 'email', 'phone', 'subject', 'message', 'is_read', 'created_at']
-        read_only_fields = ['name', 'email', 'phone', 'subject', 'message', 'created_at']
+        fields = [
+            'id', 'name', 'email', 'phone', 'subject', 'message',
+            'vehicle', 'is_read', 'created_at',
+        ]
+        read_only_fields = ['name', 'email', 'phone', 'subject', 'message', 'vehicle', 'created_at']
+
+    def get_vehicle(self, obj):
+        if not obj.vehicle_id:
+            return None
+        vehicle = obj.vehicle
+        return {
+            'id': vehicle.id,
+            'slug': vehicle.slug,
+            'title_fr': vehicle.title_fr,
+            'brand': vehicle.brand,
+            'model_name': vehicle.model_name,
+            'year': vehicle.year,
+            'is_sold': vehicle.is_sold,
+        }
 
 
 class AdminStaffUserSerializer(serializers.ModelSerializer):

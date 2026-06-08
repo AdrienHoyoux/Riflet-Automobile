@@ -123,6 +123,7 @@ export interface UsedVehicle {
   description_de: string
   description_nl: string
   image: string | null
+  images?: string[]
   is_sold: boolean
   order: number
 }
@@ -133,6 +134,17 @@ export interface ContactFormData {
   phone: string
   subject: string
   message: string
+  vehicle_slug?: string
+}
+
+export interface ContactMessageVehicle {
+  id: number
+  slug: string
+  title_fr: string
+  brand: string
+  model_name: string
+  year: number
+  is_sold: boolean
 }
 
 export interface ReviewSubmitData {

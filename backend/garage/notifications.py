@@ -20,10 +20,36 @@ def _format_received_at(contact) -> str:
     return date_format(localtime(created), 'DATETIME_FORMAT')
 
 
+def _vehicle_email_lines(contact) -> tuple[str, str]:
+    vehicle = getattr(contact, 'vehicle', None)
+    if not vehicle:
+        return '', ''
+
+    label = f'{vehicle.brand} {vehicle.model_name} ({vehicle.year})'
+    if vehicle.title_fr:
+        label = vehicle.title_fr
+    url = f'{SITE_URL}/vehicules/{vehicle.slug}'
+    text = (
+        f'Véhicule  : {label}\n'
+        f'Réf.      : {vehicle.slug}\n'
+        f'Annonce   : {url}\n'
+    )
+    html_block = (
+        f'<p style="margin:0 0 4px;font-size:11px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;color:#8a8a8a;">Annonce véhicule</p>'
+        f'<p style="margin:0;font-size:15px;color:#0a0a0a;line-height:1.5;">'
+        f'{html.escape(label)}<br>'
+        f'<span style="font-size:12px;color:#8a8a8a;">Réf. {html.escape(vehicle.slug)}</span><br>'
+        f'<a href="{html.escape(url)}" style="color:#0a0a0a;text-decoration:underline;">{html.escape(url)}</a>'
+        f'</p>'
+    )
+    return text, html_block
+
+
 def _contact_email_content(contact) -> tuple[str, str, str]:
     subject = f'[Riflet Automobile] {contact.subject}'
     phone = contact.phone or '—'
     received_at = _format_received_at(contact)
+    vehicle_text, vehicle_html = _vehicle_email_lines(contact)
 
     text_body = (
         f'Nouveau message via le formulaire de contact\n'
@@ -32,8 +58,12 @@ def _contact_email_content(contact) -> tuple[str, str, str]:
         f'E-mail    : {contact.email}\n'
         f'Téléphone : {phone}\n'
         f'Sujet     : {contact.subject}\n'
-        f'Reçu le   : {received_at}\n\n'
-        f'Message :\n'
+        f'Reçu le   : {received_at}\n'
+    )
+    if vehicle_text:
+        text_body += f'\n{vehicle_text}'
+    text_body += (
+        f'\nMessage :\n'
         f'{"-" * 40}\n'
         f'{contact.message}\n'
         f'{"-" * 40}\n\n'
@@ -52,6 +82,15 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
     message = html.escape(contact.message).replace('\n', '<br>')
     site_url = html.escape(SITE_URL)
     mailto = html.escape(f'mailto:{contact.email}')
+    _, vehicle_html = _vehicle_email_lines(contact)
+    vehicle_block = ''
+    if vehicle_html:
+        vehicle_block = f'''
+          <tr>
+            <td style="background-color:#ffffff;padding:0 32px 24px;border-left:2px solid #0a0a0a;border-right:2px solid #0a0a0a;">
+              {vehicle_html}
+            </td>
+          </tr>'''
 
     return f"""<!DOCTYPE html>
 <html lang="fr">
@@ -95,7 +134,7 @@ def _contact_email_html(contact, phone: str, received_at: str) -> str:
               </p>
             </td>
           </tr>
-
+{vehicle_block}
           <!-- Coordonnées -->
           <tr>
             <td style="background-color:#ffffff;padding:8px 32px 24px;border-left:2px solid #0a0a0a;border-right:2px solid #0a0a0a;">

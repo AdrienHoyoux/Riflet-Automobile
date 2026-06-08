@@ -9,7 +9,7 @@ from garage.models import CustomerReview, NewsArticle, Service, SiteSettings, Wh
 
 User = get_user_model()
 
-LOGO_URL = '/images/riflet-logo.jpg'
+LOGO_URL = '/images/riflet-logo.png'
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'hoyouxadrien@gmail.com')
 GOOGLE_MAPS_URL = (
     'https://www.google.com/maps/search/?api=1&query='

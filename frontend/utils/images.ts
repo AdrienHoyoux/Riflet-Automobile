@@ -1,7 +1,7 @@
 import { resolveImageUrl } from '~/composables/useAssetUrl'
 
-/** Logo officiel Riflet Automobile (photo de profil Facebook) — copie locale stable */
-export const LOGO_URL = '/images/riflet-logo.jpg'
+/** Logo officiel Riflet Automobile */
+export const LOGO_URL = '/images/riflet-logo.png'
 
 const unsplash = (id: string, width = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`

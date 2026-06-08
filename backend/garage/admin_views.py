@@ -287,14 +287,14 @@ class AdminReviewSelectionView(APIView):
 class AdminVehicleListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminUsedVehicleSerializer
-    queryset = UsedVehicle.objects.all().order_by('order', '-created_at')
+    queryset = UsedVehicle.objects.prefetch_related('gallery_images').order_by('order', '-created_at')
     parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
 
 
 class AdminVehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminUsedVehicleSerializer
-    queryset = UsedVehicle.objects.all()
+    queryset = UsedVehicle.objects.prefetch_related('gallery_images').all()
     parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
 
 
@@ -329,13 +329,14 @@ class AdminWhyChooseItemDetailView(generics.RetrieveUpdateDestroyAPIView):
 class AdminMessageListView(generics.ListAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminContactMessageSerializer
-    queryset = ContactMessage.objects.all().order_by('-created_at')
+    queryset = ContactMessage.objects.select_related('vehicle').order_by('-created_at')
+    pagination_class = None
 
 
 class AdminMessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminContactMessageSerializer
-    queryset = ContactMessage.objects.all()
+    queryset = ContactMessage.objects.select_related('vehicle').all()
 
 
 class AdminMfaStatusView(APIView):

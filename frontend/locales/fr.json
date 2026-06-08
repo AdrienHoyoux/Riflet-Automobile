@@ -86,7 +86,15 @@
     "transmission": {
       "manual": "Manuelle",
       "automatic": "Automatique"
-    }
+    },
+    "gallery_prev": "Photo précédente",
+    "gallery_next": "Photo suivante",
+    "gallery_go_to": "Afficher la photo {index}",
+    "contact_subject": "[Annonce] Demande d'informations — {title}",
+    "contact_message": "Bonjour,\n\nJe suis intéressé(e) par le véhicule d'occasion suivant :\n\n• {title}\n• {brand} {model} ({year})\n• {mileage} — {fuel}\n• Prix : {price}\n• Réf. annonce : {slug}\n• Lien : {url}\n\nPourriez-vous me recontacter pour plus d'informations ?\n\nCordialement,",
+    "contact_sold_title": "Véhicule vendu",
+    "contact_sold_text": "Ce véhicule a été vendu. Le formulaire de contact n'est plus disponible pour cette annonce.",
+    "contact_sold_cta": "Voir les autres véhicules"
   },
   "about": {
     "title": "À propos",
@@ -125,7 +133,8 @@
       "subjectRequired": "Veuillez indiquer un sujet.",
       "messageTooShort": "Votre message doit contenir au moins 10 caractères.",
       "phoneInvalid": "Numéro de téléphone invalide. Exemples : 080 39 99 81 (BE), 06 12 34 56 78 (FR), 621 123 456 (LU), 06 12345678 (NL).",
-      "serverError": "Le serveur est momentanément indisponible. Réessayez dans quelques instants ou appelez-nous directement."
+      "serverError": "Le serveur est momentanément indisponible. Réessayez dans quelques instants ou appelez-nous directement.",
+      "vehicle_context": "Votre message concerne l'annonce :"
     },
     "info_title": "Coordonnées",
     "call_us": "Appelez-nous"

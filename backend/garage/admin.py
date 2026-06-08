@@ -133,7 +133,7 @@ class UsedVehicleAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'subject', 'is_read', 'created_at')
+    list_display = ('name', 'email', 'subject', 'vehicle', 'is_read', 'created_at')
     list_filter = ('is_read', 'created_at')
     search_fields = ('name', 'email', 'subject', 'message')
     readonly_fields = ('name', 'email', 'phone', 'subject', 'message', 'created_at')

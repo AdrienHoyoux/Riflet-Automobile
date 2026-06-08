@@ -1,7 +1,7 @@
 <template>
   <div v-if="vehicle">
     <section class="border-b-2 border-ink bg-ink py-16 text-chalk lg:py-24">
-      <div class="container-custom grid gap-8 lg:grid-cols-2 lg:items-center">
+      <div class="container-custom grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-street text-acid">{{ $t('nav.vehicles') }}</p>
           <h1 class="mt-4 font-display text-5xl leading-none lg:text-6xl">{{ title }}</h1>
@@ -11,9 +11,7 @@
           </p>
           <p class="mt-6 font-display text-4xl text-acid">{{ formattedPrice }}</p>
         </div>
-        <div class="aspect-[16/10] overflow-hidden border-2 border-chalk">
-          <img :src="imageSrc" :alt="title" class="h-full w-full object-cover">
-        </div>
+        <VehicleGallery :images="galleryImages" :alt="title" />
       </div>
     </section>
 
@@ -21,9 +19,14 @@
       <div class="container-custom max-w-3xl">
         <h2 class="font-display text-3xl">{{ $t('vehicles.details') }}</h2>
         <p class="mt-6 whitespace-pre-line text-sm leading-relaxed text-smoke">{{ description }}</p>
-        <NuxtLinkLocale to="/contact" class="btn-primary mt-10 inline-flex">
+        <NuxtLinkLocale
+          v-if="!vehicle.is_sold"
+          :to="{ path: '/contact', query: { vehicule: vehicle.slug } }"
+          class="btn-primary mt-10 inline-flex"
+        >
           {{ $t('vehicles.contact_cta') }}
         </NuxtLinkLocale>
+        <p v-else class="mt-10 text-sm text-smoke">{{ $t('vehicles.contact_sold_text') }}</p>
       </div>
     </section>
   </div>
@@ -46,7 +49,12 @@ if (!vehicle.value) {
 
 const title = computed(() => useLocalizedField(vehicle.value as UsedVehicle, 'title'))
 const description = computed(() => useLocalizedField(vehicle.value as UsedVehicle, 'description'))
-const imageSrc = computed(() => resolveImageUrl(vehicle.value?.image) || UNSPLASH_IMAGES.usedCars)
+const galleryImages = computed(() => {
+  const fromApi = vehicle.value?.images?.map(url => resolveImageUrl(url)).filter(Boolean) as string[]
+  if (fromApi?.length) return fromApi
+  const fallback = resolveImageUrl(vehicle.value?.image)
+  return fallback ? [fallback] : [UNSPLASH_IMAGES.usedCars]
+})
 const formattedPrice = computed(() =>
   new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(vehicle.value!.price)),
 )
@@ -56,5 +64,5 @@ const formattedMileage = computed(() =>
 const fuelLabel = computed(() => t(`vehicles.fuel.${vehicle.value!.fuel_type}`))
 const transmissionLabel = computed(() => t(`vehicles.transmission.${vehicle.value!.transmission}`))
 
-useSeoMetaTags(title.value, description.value.slice(0, 160), imageSrc.value)
+useSeoMetaTags(title.value, description.value.slice(0, 160), galleryImages.value[0])
 </script>

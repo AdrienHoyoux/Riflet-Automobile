@@ -65,11 +65,16 @@
 
       <AdminField v-model="editing.description_fr" label="Description (FR)" type="textarea" />
 
-      <AdminImageUpload v-model="editing.image_url" label="Photo du véhicule" folder="vehicles" url-label="URL photo">
+      <AdminMultiImageUpload
+        v-model="editing.gallery_urls"
+        label="Photos du véhicule"
+        hint="Ajoutez plusieurs photos. La première sera utilisée sur la liste des véhicules."
+        folder="vehicles"
+      >
         <template #site-preview>
           <VehicleCard :vehicle="previewVehicle" />
         </template>
-      </AdminImageUpload>
+      </AdminMultiImageUpload>
 
       <div class="flex flex-wrap gap-4 text-sm">
 
@@ -164,6 +169,10 @@ interface AdminVehicle {
 
   image_url: string
 
+  gallery_urls: string[]
+
+  gallery?: string[]
+
   image_preview?: string | null
 
   is_active: boolean
@@ -204,7 +213,7 @@ const previewVehicle = computed((): UsedVehicle => {
     description_fr: vehicle.description_fr || 'Description du véhicule…',
     description_de: '',
     description_nl: '',
-    image: resolveImageUrl(vehicle.image_url) || null,
+    image: resolveImageUrl(vehicle.gallery_urls[0] || vehicle.image_url) || null,
     is_sold: vehicle.is_sold,
     order: 0,
   }
@@ -234,6 +243,8 @@ function emptyVehicle(): AdminVehicle {
 
     image_url: '',
 
+    gallery_urls: [],
+
     is_active: true,
 
     is_sold: false,
@@ -260,7 +271,7 @@ function buildPayload(vehicle: AdminVehicle) {
     price,
     title_fr: title,
     description_fr: vehicle.description_fr,
-    image_url: normalizeImageUrlForStorage(vehicle.image_url),
+    gallery_urls: vehicle.gallery_urls.map(url => normalizeImageUrlForStorage(url)),
     is_active: vehicle.is_active,
     is_sold: vehicle.is_sold,
     order: vehicle.order,
@@ -306,6 +317,11 @@ function editVehicle(vehicle: AdminVehicle) {
     price: String(vehicle.price),
 
     image_url: imageUrlFromPreview(vehicle.image_preview, vehicle.image_url),
+
+    gallery_urls: (vehicle.gallery?.length
+      ? vehicle.gallery
+      : [imageUrlFromPreview(vehicle.image_preview, vehicle.image_url)]
+    ).filter(Boolean).map(url => normalizeImageUrlForStorage(url)),
 
   }
 

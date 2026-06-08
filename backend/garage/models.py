@@ -165,6 +165,14 @@ class ContactMessage(models.Model):
     phone = models.CharField('Téléphone', max_length=30, blank=True)
     subject = models.CharField('Sujet', max_length=255)
     message = models.TextField('Message')
+    vehicle = models.ForeignKey(
+        'UsedVehicle',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_messages',
+        verbose_name='Véhicule concerné',
+    )
     is_read = models.BooleanField('Lu', default=False)
     created_at = models.DateTimeField('Reçu le', auto_now_add=True)
 
@@ -224,6 +232,26 @@ class UsedVehicle(TranslatedModelMixin):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class VehicleImage(models.Model):
+    vehicle = models.ForeignKey(
+        UsedVehicle,
+        on_delete=models.CASCADE,
+        related_name='gallery_images',
+        verbose_name='Véhicule',
+    )
+    image = models.ImageField('Image', upload_to='vehicles/gallery/', blank=True, null=True)
+    image_url = models.CharField('URL image externe', max_length=500, blank=True)
+    order = models.PositiveIntegerField('Ordre', default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Photo véhicule'
+        verbose_name_plural = 'Photos véhicule'
+
+    def __str__(self):
+        return f'Photo {self.order + 1} — {self.vehicle}'
 
 
 class WhyChooseItem(models.Model):

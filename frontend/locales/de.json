@@ -77,7 +77,15 @@
     "contact_cta": "Informationen anfordern",
     "sold": "Verkauft",
     "fuel": { "petrol": "Benzin", "diesel": "Diesel", "electric": "Elektrisch", "hybrid": "Hybrid", "lpg": "LPG" },
-    "transmission": { "manual": "Manuell", "automatic": "Automatik" }
+    "transmission": { "manual": "Manuell", "automatic": "Automatik" },
+    "gallery_prev": "Vorheriges Foto",
+    "gallery_next": "Nächstes Foto",
+    "gallery_go_to": "Foto {index} anzeigen",
+    "contact_subject": "[Anzeige] Informationsanfrage — {title}",
+    "contact_message": "Guten Tag,\n\nIch interessiere mich für folgendes Gebrauchtfahrzeug :\n\n• {title}\n• {brand} {model} ({year})\n• {mileage} — {fuel}\n• Preis : {price}\n• Anzeigenreferenz : {slug}\n• Link : {url}\n\nKönnten Sie mich für weitere Informationen kontaktieren ?\n\nMit freundlichen Grüßen,",
+    "contact_sold_title": "Fahrzeug verkauft",
+    "contact_sold_text": "Dieses Fahrzeug wurde verkauft. Das Kontaktformular ist für diese Anzeige nicht mehr verfügbar.",
+    "contact_sold_cta": "Weitere Fahrzeuge ansehen"
   },
   "about": {
     "title": "Über uns",
@@ -116,7 +124,8 @@
       "subjectRequired": "Bitte geben Sie einen Betreff an.",
       "messageTooShort": "Ihre Nachricht muss mindestens 10 Zeichen enthalten.",
       "phoneInvalid": "Ungültige Telefonnummer. Beispiele: 080 39 99 81 (BE), 06 12 34 56 78 (FR), 621 123 456 (LU), 06 12345678 (NL).",
-      "serverError": "Der Server ist vorübergehend nicht erreichbar. Versuchen Sie es später erneut oder rufen Sie uns direkt an."
+      "serverError": "Der Server ist vorübergehend nicht erreichbar. Versuchen Sie es später erneut oder rufen Sie uns direkt an.",
+      "vehicle_context": "Ihre Nachricht betrifft die Anzeige :"
     },
     "info_title": "Kontaktdaten",
     "call_us": "Rufen Sie uns an"

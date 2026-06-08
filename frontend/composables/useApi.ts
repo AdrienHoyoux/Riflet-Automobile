@@ -30,16 +30,23 @@ export function useApiBase() {
   return (config.public.apiBase as string) || 'http://localhost:8000'
 }
 
+export function getLocalizedField<T extends Record<string, unknown>>(
+  item: T,
+  field: string,
+  lang: string,
+) {
+  const key = `${field}_${lang}` as keyof T
+  const fallback = `${field}_fr` as keyof T
+  return (item[key] || item[fallback] || '') as string
+}
+
 export function useLocalizedField<T extends Record<string, unknown>>(
   item: T,
   field: string,
   locale?: string,
 ) {
   const { locale: currentLocale } = useI18n()
-  const lang = locale || currentLocale.value
-  const key = `${field}_${lang}` as keyof T
-  const fallback = `${field}_fr` as keyof T
-  return (item[key] || item[fallback] || '') as string
+  return getLocalizedField(item, field, locale || currentLocale.value)
 }
 
 export async function fetchSettings() {

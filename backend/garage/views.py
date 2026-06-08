@@ -102,7 +102,7 @@ class VehicleListView(generics.ListAPIView):
     serializer_class = UsedVehicleSerializer
 
     def get_queryset(self):
-        return UsedVehicle.objects.filter(is_active=True)
+        return UsedVehicle.objects.filter(is_active=True).prefetch_related('gallery_images')
 
 
 class VehicleDetailView(generics.RetrieveAPIView):
@@ -110,4 +110,4 @@ class VehicleDetailView(generics.RetrieveAPIView):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return UsedVehicle.objects.filter(is_active=True)
+        return UsedVehicle.objects.filter(is_active=True).prefetch_related('gallery_images')

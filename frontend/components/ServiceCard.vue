@@ -1,10 +1,10 @@
 <template>
-  <article ref="cardRef" class="card group flex h-full flex-col overflow-hidden !p-0">
+  <article ref="cardRef" class="card group flex h-full flex-col overflow-hidden !p-0 hover:shadow-none">
     <div class="aspect-[4/3] overflow-hidden bg-ink-soft">
       <img
         :src="imageSrc"
         :alt="title"
-        class="h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0"
+        class="h-full w-full object-cover grayscale transition-[filter] duration-700 group-hover:grayscale-0"
       >
     </div>
     <div class="flex flex-1 flex-col border-t-2 border-ink p-6">
