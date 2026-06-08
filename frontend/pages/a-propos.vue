@@ -58,7 +58,7 @@
       </div>
     </section>
 
-    <section v-if="mapCoords" ref="mapSection" class="border-t-2 border-ink bg-chalk-dark pb-16 lg:pb-24">
+    <section v-if="mapCoords" ref="mapSection" class="relative z-0 border-t-2 border-ink bg-chalk-dark pb-16 lg:pb-24">
       <div class="container-custom">
         <p class="anim-label section-label">{{ $t('about.map_label') }}</p>
         <h2 class="anim-title section-title mt-2">{{ $t('about.map_title') }}</h2>
