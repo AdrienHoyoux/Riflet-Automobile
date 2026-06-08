@@ -98,10 +98,7 @@ def sync_google_reviews():
 
 
 def set_featured_reviews(review_ids):
-    """Publie exactement les avis sélectionnés sur l'accueil (max 6)."""
-    if len(review_ids) > MAX_FEATURED_REVIEWS:
-        raise ValueError(f'Vous ne pouvez sélectionner que {MAX_FEATURED_REVIEWS} avis maximum.')
-
+    """Publie les avis sélectionnés sur l'accueil (diaporama)."""
     ids = [int(pk) for pk in review_ids]
     existing = set(
         CustomerReview.objects.filter(pk__in=ids).values_list('pk', flat=True),

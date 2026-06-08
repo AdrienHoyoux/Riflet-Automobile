@@ -3,6 +3,7 @@ import type {
   CustomerReview,
   NewsArticle,
   PaginatedResponse,
+  ReviewSubmitData,
   Service,
   SiteSettings,
   UsedVehicle,
@@ -81,6 +82,13 @@ export async function fetchVehicle(slug: string) {
 export async function submitContact(form: ContactFormData) {
   // Même origine → Nitro → backend (Traefik route /api/* vers Django, pas Nuxt)
   return $fetch<{ detail: string }>('/contact/submit', {
+    method: 'POST',
+    body: form,
+  })
+}
+
+export async function submitReview(form: ReviewSubmitData) {
+  return $fetch<{ detail: string }>('/reviews/submit', {
     method: 'POST',
     body: form,
   })

@@ -4,9 +4,9 @@
       <div>
         <h1 class="font-display text-4xl">Avis clients</h1>
         <p class="mt-2 text-sm text-smoke">
-          Ajoutez vos avis à la main (copiés depuis Google Maps, Facebook, etc.), puis choisissez
-          <strong class="text-ink">{{ selectedIds.length }} / {{ maxFeatured }}</strong> pour l'accueil.
-          Aucune API Google payante requise.
+          Ajoutez vos avis à la main, modérez les avis laissés sur le site, puis cochez ceux à afficher
+          dans le diaporama de l'accueil.
+          <strong class="text-ink">{{ selectedIds.length }}</strong> avis sélectionné(s).
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -110,7 +110,6 @@
               type="checkbox"
               class="mt-1 h-4 w-4 border-2 border-ink"
               :checked="isSelected(review.id)"
-              :disabled="!isSelected(review.id) && selectedIds.length >= maxFeatured"
               @change="toggleSelection(review.id)"
             >
             <span class="sr-only">Sélectionner pour l'accueil</span>
@@ -124,6 +123,12 @@
                 class="bg-ink px-2 py-0.5 text-[10px] font-bold uppercase tracking-street text-chalk"
               >
                 Sur l'accueil
+              </span>
+              <span
+                v-if="!review.is_published"
+                class="border-2 border-amber-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-street text-amber-700"
+              >
+                En attente
               </span>
             </div>
             <p class="mt-2 text-sm leading-relaxed text-smoke">{{ review.content }}</p>
@@ -160,8 +165,6 @@ import type { SiteSettings } from '~/types/api'
 import { formatAdminError } from '~/composables/useAssetUrl'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
-
-const maxFeatured = 6
 
 interface AdminReview {
   id: number
@@ -296,10 +299,6 @@ function toggleSelection(id: number) {
     selectedIds.value = selectedIds.value.filter(item => item !== id)
     return
   }
-  if (selectedIds.value.length >= maxFeatured) {
-    error.value = `Vous ne pouvez sélectionner que ${maxFeatured} avis maximum.`
-    return
-  }
   error.value = ''
   selectedIds.value = [...selectedIds.value, id]
 }
@@ -352,6 +351,7 @@ async function removeReview(id: number) {
 }
 
 function sourceLabel(source: string) {
+  if (source === 'website') return 'Site web (client)'
   if (source === 'manual') return 'Saisie manuelle'
   if (source === 'facebook') return 'Facebook'
   return 'Google'

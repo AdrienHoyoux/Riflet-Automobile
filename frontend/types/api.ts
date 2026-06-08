@@ -103,3 +103,10 @@ export interface ContactFormData {
   subject: string
   message: string
 }
+
+export interface ReviewSubmitData {
+  author_name: string
+  rating: number
+  content: string
+  company?: string
+}

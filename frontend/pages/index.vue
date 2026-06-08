@@ -72,7 +72,7 @@
       </div>
     </section>
 
-    <ReviewsSection v-if="reviews?.length" :reviews="reviews" />
+    <ReviewsSection :reviews="reviews || []" />
 
     <section ref="whySection" class="py-16 lg:py-24">
       <div class="container-custom">

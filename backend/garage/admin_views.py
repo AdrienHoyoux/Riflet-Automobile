@@ -274,7 +274,6 @@ class AdminReviewSelectionView(APIView):
         return Response({
             'detail': f'{count} avis affichés sur l\'accueil.',
             'count': count,
-            'max': MAX_FEATURED_REVIEWS,
         })
 
 

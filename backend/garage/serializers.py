@@ -133,6 +133,46 @@ class CustomerReviewSerializer(serializers.ModelSerializer):
         ]
 
 
+class PublicReviewSubmitSerializer(serializers.Serializer):
+    author_name = serializers.CharField(max_length=120)
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    content = serializers.CharField()
+    company = serializers.CharField(required=False, allow_blank=True, default='')
+
+    def validate_author_name(self, value):
+        name = value.strip()
+        if len(name) < 2:
+            raise serializers.ValidationError('Indiquez votre prénom ou nom (2 caractères minimum).')
+        return name
+
+    def validate_content(self, value):
+        content = value.strip()
+        if len(content) < 10:
+            raise serializers.ValidationError('Votre avis doit contenir au moins 10 caractères.')
+        if len(content) > 2000:
+            raise serializers.ValidationError('Votre avis ne peut pas dépasser 2000 caractères.')
+        return content
+
+    def validate(self, attrs):
+        if attrs.get('company', '').strip():
+            attrs['_honeypot'] = True
+        return attrs
+
+    def create(self, validated_data):
+        if validated_data.pop('_honeypot', False):
+            return None
+
+        validated_data.pop('company', None)
+        return CustomerReview.objects.create(
+            author_name=validated_data['author_name'],
+            rating=validated_data['rating'],
+            content=validated_data['content'],
+            source='website',
+            is_published=False,
+            order=999,
+        )
+
+
 class UsedVehicleSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 

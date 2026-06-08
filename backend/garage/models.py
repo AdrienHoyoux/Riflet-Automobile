@@ -205,6 +205,7 @@ class CustomerReview(models.Model):
         ('google', 'Google'),
         ('facebook', 'Facebook'),
         ('manual', 'Manuel'),
+        ('website', 'Site web'),
     ]
 
     author_name = models.CharField('Auteur', max_length=120)

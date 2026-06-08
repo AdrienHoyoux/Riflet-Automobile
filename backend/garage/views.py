@@ -9,6 +9,7 @@ from .serializers import (
     CustomerReviewSerializer,
     NewsArticleDetailSerializer,
     NewsArticleListSerializer,
+    PublicReviewSubmitSerializer,
     ServiceSerializer,
     SiteSettingsSerializer,
     UsedVehicleSerializer,
@@ -64,9 +65,28 @@ class ContactCreateView(generics.CreateAPIView):
 
 class ReviewListView(generics.ListAPIView):
     serializer_class = CustomerReviewSerializer
+    pagination_class = None
 
     def get_queryset(self):
-        return CustomerReview.objects.filter(is_published=True).order_by('order')[:6]
+        return CustomerReview.objects.filter(is_published=True).order_by('order', '-review_date', '-created_at')
+
+
+class ReviewCreateView(generics.GenericAPIView):
+    serializer_class = PublicReviewSubmitSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = serializer.save()
+        if review is None:
+            return Response(
+                {'detail': 'Merci ! Votre avis sera publié après validation par notre équipe.'},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {'detail': 'Merci ! Votre avis sera publié après validation par notre équipe.'},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class VehicleListView(generics.ListAPIView):
