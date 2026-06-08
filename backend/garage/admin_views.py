@@ -328,7 +328,7 @@ class AdminMessageListView(generics.ListAPIView):
     queryset = ContactMessage.objects.all().order_by('-created_at')
 
 
-class AdminMessageDetailView(generics.RetrieveUpdateAPIView):
+class AdminMessageDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminContactMessageSerializer
     queryset = ContactMessage.objects.all()

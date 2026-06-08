@@ -34,10 +34,7 @@
     <form v-if="editing" class="card mt-8 space-y-4" @submit.prevent="saveService">
       <h2 class="font-display text-2xl">{{ editing.id ? 'Modifier' : 'Ajouter' }} un service</h2>
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <AdminField v-model="editing.order" label="Ordre d'affichage" type="number" />
-        <AdminField v-model="editing.icon" label="Icône (emoji, optionnel)" />
-      </div>
+      <AdminField v-model="editing.order" label="Ordre d'affichage" type="number" />
 
       <AdminField v-model="editing.title_fr" label="Titre (FR)" />
       <AdminField v-model="editing.title_de" label="Titre (DE)" />

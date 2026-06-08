@@ -55,6 +55,8 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      # Ne pas activer en prod : les données admin/MySQL doivent persister entre déploiements
+      RUN_SEED_DATA: ${RUN_SEED_DATA:-false}
     volumes:
       - media_data:/app/media
     depends_on:

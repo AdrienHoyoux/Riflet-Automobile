@@ -31,6 +31,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: config.settings
       DATABASE_HOST: db
+      RUN_SEED_DATA: "true"
     volumes:
       - ./backend:/app
       - media_data_dev:/app/media

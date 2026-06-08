@@ -30,8 +30,13 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-echo "Seeding initial data (création uniquement si absent)..."
-python manage.py seed_data
+if [ "${RUN_SEED_DATA:-false}" = "true" ]; then
+  echo "Seeding initial data (création uniquement si absent)..."
+  python manage.py seed_data
+else
+  echo "Seed ignoré (RUN_SEED_DATA=false). Les données en base sont conservées."
+  echo "Première install : docker exec riflet_backend python manage.py seed_data"
+fi
 
 echo "Starting application..."
 exec "$@"

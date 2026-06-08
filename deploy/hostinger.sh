@@ -20,13 +20,16 @@ case "$cmd" in
   install)
     echo "==> Build et démarrage (première installation)..."
     docker compose -p "$PROJECT_NAME" --env-file .env up -d --build
-    echo "==> Attendez les logs backend (seed_data automatique) :"
+    echo "==> Première installation : créer les données de base (une seule fois) :"
+    echo "    docker exec riflet_backend python manage.py seed_data"
+    echo "==> Logs backend :"
     echo "    ./deploy/hostinger.sh logs"
     ;;
   update)
-    echo "==> Mise à jour (git pull + rebuild)..."
+    echo "==> Mise à jour (git pull + rebuild, données MySQL/médias conservées)..."
     git pull origin main
     docker compose -p "$PROJECT_NAME" --env-file .env up -d --build
+    echo "==> Migrations appliquées au redémarrage. seed_data n'est pas relancé (RUN_SEED_DATA=false)."
     ;;
   logs)
     docker logs -f riflet_backend
