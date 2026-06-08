@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle
+from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 
 
 class FlexibleURLField(serializers.CharField):
@@ -27,12 +27,6 @@ def absolute_media_url(request, url):
     return url
 
 
-def resolve_model_image(request, obj):
-    if obj.image:
-        url = obj.image.url
-        return request.build_absolute_uri(url) if request else url
-    return absolute_media_url(request, obj.image_url)
-
 PHONE_REGEX = re.compile(
     r'^(?:'
     r'\+32[\s./-]?(?:\d[\s./-]?){8,12}|'
@@ -49,6 +43,25 @@ PHONE_REGEX = re.compile(
 )
 
 
+def resolve_model_image(request, obj):
+    if obj.image:
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
+    return absolute_media_url(request, obj.image_url)
+
+
+SITE_CONTENT_FIELDS = [
+    'about_title_fr', 'about_title_de', 'about_title_nl',
+    'about_subtitle_fr', 'about_subtitle_de', 'about_subtitle_nl',
+    'about_image_url',
+    'home_services_title_fr', 'home_services_title_de', 'home_services_title_nl',
+    'home_services_subtitle_fr', 'home_services_subtitle_de', 'home_services_subtitle_nl',
+    'home_why_title_fr', 'home_why_title_de', 'home_why_title_nl',
+    'services_title_fr', 'services_title_de', 'services_title_nl',
+    'services_subtitle_fr', 'services_subtitle_de', 'services_subtitle_nl',
+]
+
+
 class SiteSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SiteSettings
@@ -56,6 +69,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'company_name',
             'tagline_fr', 'tagline_de', 'tagline_nl',
             'about_fr', 'about_de', 'about_nl',
+            *SITE_CONTENT_FIELDS,
             'address', 'city', 'postal_code', 'country',
             'phone', 'email', 'facebook_url',
             'monday_hours', 'tuesday_hours', 'wednesday_hours',
@@ -102,6 +116,12 @@ class NewsArticleDetailSerializer(NewsArticleListSerializer):
         fields = NewsArticleListSerializer.Meta.fields + [
             'content_fr', 'content_de', 'content_nl',
         ]
+
+
+class WhyChooseItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhyChooseItem
+        fields = ['id', 'text_fr', 'text_de', 'text_nl', 'order']
 
 
 class ContactMessageSerializer(serializers.ModelSerializer):
@@ -153,6 +173,7 @@ class UsedVehicleSerializer(serializers.ModelSerializer):
 class AdminSiteSettingsSerializer(serializers.ModelSerializer):
     logo_url = FlexibleURLField(required=False)
     hero_image_url = FlexibleURLField(required=False)
+    about_image_url = FlexibleURLField(required=False)
     facebook_url = FlexibleURLField(required=False)
     google_maps_url = FlexibleURLField(required=False)
 
@@ -162,6 +183,7 @@ class AdminSiteSettingsSerializer(serializers.ModelSerializer):
             'company_name',
             'tagline_fr', 'tagline_de', 'tagline_nl',
             'about_fr', 'about_de', 'about_nl',
+            *SITE_CONTENT_FIELDS,
             'address', 'city', 'postal_code', 'country',
             'phone', 'email', 'facebook_url',
             'monday_hours', 'tuesday_hours', 'wednesday_hours',
@@ -231,6 +253,31 @@ class AdminUsedVehicleSerializer(serializers.ModelSerializer):
 
     def get_image_preview(self, obj):
         return resolve_model_image(self.context.get('request'), obj)
+
+
+class AdminServiceSerializer(serializers.ModelSerializer):
+    image_url = FlexibleURLField(required=False)
+    image = serializers.ImageField(required=False, allow_null=True)
+    image_preview = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Service
+        fields = [
+            'id',
+            'title_fr', 'title_de', 'title_nl',
+            'description_fr', 'description_de', 'description_nl',
+            'icon', 'image', 'image_url', 'image_preview', 'order', 'is_active',
+        ]
+        read_only_fields = ['image_preview']
+
+    def get_image_preview(self, obj):
+        return resolve_model_image(self.context.get('request'), obj)
+
+
+class AdminWhyChooseItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhyChooseItem
+        fields = ['id', 'text_fr', 'text_de', 'text_nl', 'order', 'is_active']
 
 
 class AdminContactMessageSerializer(serializers.ModelSerializer):

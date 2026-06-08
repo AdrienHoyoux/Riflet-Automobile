@@ -21,7 +21,8 @@
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 const cards = [
-  { to: '/admin/parametres', title: 'Paramètres', text: 'Textes, horaires, coordonnées — aperçu à côté de chaque section.' },
+  { to: '/admin/parametres', title: 'Paramètres', text: 'Textes, horaires, coordonnées, pages À propos et accueil.' },
+  { to: '/admin/services', title: 'Services', text: 'Ajouter, modifier ou masquer les prestations du garage.' },
   { to: '/admin/actualites', title: 'Actualités', text: 'Publier et modifier les articles.' },
   { to: '/admin/vehicules', title: 'Véhicules', text: 'Ajouter des voitures d\'occasion.' },
   { to: '/admin/avis', title: 'Avis', text: 'Ajouter des avis à la main et choisir les 6 de l\'accueil.' },

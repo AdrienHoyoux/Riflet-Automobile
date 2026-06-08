@@ -6,6 +6,7 @@ import type {
   Service,
   SiteSettings,
   UsedVehicle,
+  WhyChooseItem,
 } from '~/types/api'
 
 export function useApiBase() {
@@ -48,6 +49,11 @@ export async function fetchServices() {
   const apiBase = useApiBase()
   const data = await $fetch<PaginatedResponse<Service> | Service[]>(`${apiBase}/api/services/`)
   return Array.isArray(data) ? data : data.results
+}
+
+export async function fetchWhyChooseItems() {
+  const apiBase = useApiBase()
+  return $fetch<WhyChooseItem[]>(`${apiBase}/api/why-items/`)
 }
 
 export async function fetchNews() {

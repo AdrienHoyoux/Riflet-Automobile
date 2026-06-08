@@ -45,6 +45,7 @@ const { username, logout } = useAdminAuth()
 const links = [
   { to: '/admin', label: 'Tableau de bord' },
   { to: '/admin/parametres', label: 'Paramètres' },
+  { to: '/admin/services', label: 'Services' },
   { to: '/admin/actualites', label: 'Actualités' },
   { to: '/admin/vehicules', label: 'Véhicules' },
   { to: '/admin/avis', label: 'Avis clients' },

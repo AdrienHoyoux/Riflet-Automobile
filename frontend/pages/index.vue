@@ -7,8 +7,8 @@
         <div class="flex flex-wrap items-end justify-between gap-6 border-b-2 border-ink pb-6">
           <div>
             <p class="anim-label section-label">{{ $t('nav.services') }}</p>
-            <h2 class="anim-title section-title mt-2">{{ $t('home.services_title') }}</h2>
-            <p class="anim-subtitle section-subtitle">{{ $t('home.services_subtitle') }}</p>
+            <h2 class="anim-title section-title mt-2">{{ homeServicesTitle }}</h2>
+            <p class="anim-subtitle section-subtitle">{{ homeServicesSubtitle }}</p>
           </div>
           <NuxtLinkLocale to="/services" class="anim-cta btn-secondary">
             {{ $t('home.view_all') }}
@@ -77,7 +77,7 @@
     <section ref="whySection" class="py-16 lg:py-24">
       <div class="container-custom">
         <p class="anim-label section-label text-center">{{ $t('nav.about') }}</p>
-        <h2 class="anim-title section-title mt-2 text-center">{{ $t('home.why_title') }}</h2>
+        <h2 class="anim-title section-title mt-2 text-center">{{ homeWhyTitle }}</h2>
         <div class="mx-auto mt-12 grid max-w-5xl gap-px bg-ink sm:grid-cols-3">
           <div
             v-for="(item, index) in whyItems"
@@ -121,9 +121,10 @@
 <script setup lang="ts">
 import type { SiteSettings } from '~/types/api'
 import { resolveImageUrl } from '~/composables/useAssetUrl'
+import { localizedWhyText } from '~/composables/useSiteContent'
 import { LOGO_URL, VOLVO_IMAGES } from '~/utils/images'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const settings = inject<Ref<SiteSettings | null>>('siteSettings')
 const config = useRuntimeConfig()
 const logoUrl = useLogoUrl(settings)
@@ -139,12 +140,17 @@ const vehiclesGrid = ref<HTMLElement | null>(null)
 
 const { revealSection, revealWhySection, staggerIn } = useGsap()
 
-const [{ data: services }, { data: news }, { data: reviews }, { data: vehicles }] = await Promise.all([
+const [{ data: services }, { data: news }, { data: reviews }, { data: vehicles }, { data: whyItemsApi }] = await Promise.all([
   useAsyncData('home-services', fetchServices),
   useAsyncData('home-news', fetchNews),
   useAsyncData('home-reviews', fetchReviews),
   useAsyncData('home-vehicles', fetchVehicles),
+  useAsyncData('why-items', fetchWhyChooseItems),
 ])
+
+const homeServicesTitle = useSettingsField(settings, 'home_services_title', 'home.services_title')
+const homeServicesSubtitle = useSettingsField(settings, 'home_services_subtitle', 'home.services_subtitle')
+const homeWhyTitle = useSettingsField(settings, 'home_why_title', 'home.why_title')
 
 useSeoMetaTags(
   t('seo.home_title'),
@@ -176,11 +182,16 @@ useHead({
   ],
 })
 
-const whyItems = computed(() => [
-  t('home.why_items.all_brands'),
-  t('home.why_items.quality'),
-  t('home.why_items.location'),
-])
+const whyItems = computed(() => {
+  if (whyItemsApi.value?.length) {
+    return whyItemsApi.value.map(item => localizedWhyText(item, locale.value))
+  }
+  return [
+    t('home.why_items.all_brands'),
+    t('home.why_items.quality'),
+    t('home.why_items.location'),
+  ]
+})
 
 onMounted(() => {
   revealSection(servicesSection.value)

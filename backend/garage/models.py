@@ -35,6 +35,32 @@ class SiteSettings(models.Model):
     about_de = models.TextField('À propos (DE)', blank=True)
     about_nl = models.TextField('À propos (NL)', blank=True)
 
+    about_title_fr = models.CharField('Titre page À propos (FR)', max_length=255, blank=True)
+    about_title_de = models.CharField('Titre page À propos (DE)', max_length=255, blank=True)
+    about_title_nl = models.CharField('Titre page À propos (NL)', max_length=255, blank=True)
+    about_subtitle_fr = models.CharField('Sous-titre page À propos (FR)', max_length=500, blank=True)
+    about_subtitle_de = models.CharField('Sous-titre page À propos (DE)', max_length=500, blank=True)
+    about_subtitle_nl = models.CharField('Sous-titre page À propos (NL)', max_length=500, blank=True)
+    about_image_url = models.URLField('URL image page À propos', blank=True)
+
+    home_services_title_fr = models.CharField('Titre section services accueil (FR)', max_length=255, blank=True)
+    home_services_title_de = models.CharField('Titre section services accueil (DE)', max_length=255, blank=True)
+    home_services_title_nl = models.CharField('Titre section services accueil (NL)', max_length=255, blank=True)
+    home_services_subtitle_fr = models.CharField('Sous-titre section services accueil (FR)', max_length=500, blank=True)
+    home_services_subtitle_de = models.CharField('Sous-titre section services accueil (DE)', max_length=500, blank=True)
+    home_services_subtitle_nl = models.CharField('Sous-titre section services accueil (NL)', max_length=500, blank=True)
+
+    home_why_title_fr = models.CharField('Titre « Pourquoi nous choisir » (FR)', max_length=255, blank=True)
+    home_why_title_de = models.CharField('Titre « Pourquoi nous choisir » (DE)', max_length=255, blank=True)
+    home_why_title_nl = models.CharField('Titre « Pourquoi nous choisir » (NL)', max_length=255, blank=True)
+
+    services_title_fr = models.CharField('Titre page Services (FR)', max_length=255, blank=True)
+    services_title_de = models.CharField('Titre page Services (DE)', max_length=255, blank=True)
+    services_title_nl = models.CharField('Titre page Services (NL)', max_length=255, blank=True)
+    services_subtitle_fr = models.CharField('Sous-titre page Services (FR)', max_length=500, blank=True)
+    services_subtitle_de = models.CharField('Sous-titre page Services (DE)', max_length=500, blank=True)
+    services_subtitle_nl = models.CharField('Sous-titre page Services (NL)', max_length=500, blank=True)
+
     address = models.CharField('Adresse', max_length=255)
     city = models.CharField('Ville', max_length=100)
     postal_code = models.CharField('Code postal', max_length=20)
@@ -198,6 +224,22 @@ class UsedVehicle(TranslatedModelMixin):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class WhyChooseItem(models.Model):
+    text_fr = models.CharField('Texte (FR)', max_length=500)
+    text_de = models.CharField('Texte (DE)', max_length=500, blank=True)
+    text_nl = models.CharField('Texte (NL)', max_length=500, blank=True)
+    order = models.PositiveIntegerField('Ordre', default=0)
+    is_active = models.BooleanField('Actif', default=True)
+
+    class Meta:
+        ordering = ['order', 'pk']
+        verbose_name = 'Argument « Pourquoi nous choisir »'
+        verbose_name_plural = 'Arguments « Pourquoi nous choisir »'
+
+    def __str__(self):
+        return self.text_fr[:60]
 
 
 class CustomerReview(models.Model):

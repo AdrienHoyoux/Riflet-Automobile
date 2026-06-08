@@ -18,12 +18,16 @@ from .admin_views import (
     AdminReviewListCreateView,
     AdminReviewSelectionView,
     AdminReviewSyncView,
+    AdminServiceDetailView,
+    AdminServiceListCreateView,
     AdminSiteSettingsView,
     AdminUploadView,
     AdminUserDetailView,
     AdminUserListCreateView,
     AdminVehicleDetailView,
     AdminVehicleListCreateView,
+    AdminWhyChooseItemDetailView,
+    AdminWhyChooseItemListCreateView,
 )
 from .views import (
     ContactCreateView,
@@ -34,11 +38,13 @@ from .views import (
     SiteSettingsView,
     VehicleDetailView,
     VehicleListView,
+    WhyChooseItemListView,
 )
 
 urlpatterns = [
     path('settings/', SiteSettingsView.as_view(), name='site-settings'),
     path('services/', ServiceListView.as_view(), name='service-list'),
+    path('why-items/', WhyChooseItemListView.as_view(), name='why-item-list'),
     path('news/', NewsListView.as_view(), name='news-list'),
     path('news/<slug:slug>/', NewsDetailView.as_view(), name='news-detail'),
     path('reviews/', ReviewListView.as_view(), name='review-list'),
@@ -67,6 +73,10 @@ urlpatterns = [
     path('admin/reviews/<int:pk>/', AdminReviewDetailView.as_view(), name='admin-review-detail'),
     path('admin/vehicles/', AdminVehicleListCreateView.as_view(), name='admin-vehicle-list'),
     path('admin/vehicles/<int:pk>/', AdminVehicleDetailView.as_view(), name='admin-vehicle-detail'),
+    path('admin/services/', AdminServiceListCreateView.as_view(), name='admin-service-list'),
+    path('admin/services/<int:pk>/', AdminServiceDetailView.as_view(), name='admin-service-detail'),
+    path('admin/why-items/', AdminWhyChooseItemListCreateView.as_view(), name='admin-why-item-list'),
+    path('admin/why-items/<int:pk>/', AdminWhyChooseItemDetailView.as_view(), name='admin-why-item-detail'),
     path('admin/messages/', AdminMessageListView.as_view(), name='admin-message-list'),
     path('admin/messages/<int:pk>/', AdminMessageDetailView.as_view(), name='admin-message-detail'),
 ]

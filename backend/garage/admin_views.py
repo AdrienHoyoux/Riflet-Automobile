@@ -17,15 +17,17 @@ from .mfa import (
     verify_pending_token,
     verify_totp,
 )
-from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, SiteSettings, UsedVehicle
+from .models import AdminMfaDevice, ContactMessage, CustomerReview, NewsArticle, Service, SiteSettings, UsedVehicle, WhyChooseItem
 from .serializers import (
     AdminContactMessageSerializer,
     AdminCustomerReviewSerializer,
     AdminNewsArticleSerializer,
+    AdminServiceSerializer,
     AdminSiteSettingsSerializer,
     AdminStaffUserCreateSerializer,
     AdminStaffUserSerializer,
     AdminUsedVehicleSerializer,
+    AdminWhyChooseItemSerializer,
 )
 
 
@@ -290,6 +292,34 @@ class AdminVehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AdminUsedVehicleSerializer
     queryset = UsedVehicle.objects.all()
     parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
+
+
+class AdminServiceListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminServiceSerializer
+    queryset = Service.objects.all().order_by('order', 'title_fr')
+    pagination_class = None
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
+
+
+class AdminServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminServiceSerializer
+    queryset = Service.objects.all()
+    parser_classes = [parsers.JSONParser, parsers.MultiPartParser, parsers.FormParser]
+
+
+class AdminWhyChooseItemListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminWhyChooseItemSerializer
+    queryset = WhyChooseItem.objects.all().order_by('order', 'pk')
+    pagination_class = None
+
+
+class AdminWhyChooseItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminWhyChooseItemSerializer
+    queryset = WhyChooseItem.objects.all()
 
 
 class AdminMessageListView(generics.ListAPIView):

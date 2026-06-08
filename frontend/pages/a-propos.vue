@@ -1,8 +1,8 @@
 <template>
   <div>
     <PageHero
-      :title="$t('about.title')"
-      :subtitle="$t('about.subtitle')"
+      :title="aboutPageTitle"
+      :subtitle="aboutPageSubtitle"
       :label="$t('nav.about')"
     />
 
@@ -89,13 +89,18 @@ const mapSection = ref<HTMLElement | null>(null)
 
 const { slideIn, revealSection } = useGsap()
 
+const aboutPageTitle = useSettingsField(settings, 'about_title', 'about.title')
+const aboutPageSubtitle = useSettingsField(settings, 'about_subtitle', 'about.subtitle')
+
 const aboutText = computed(() => {
   if (!settings?.value) return ''
   return useLocalizedField(settings.value, 'about')
 })
 
 const aboutImage = computed(() =>
-  resolveImageUrl(settings?.value?.hero_image_url) || VOLVO_IMAGES.about,
+  resolveImageUrl(settings?.value?.about_image_url)
+    || resolveImageUrl(settings?.value?.hero_image_url)
+    || VOLVO_IMAGES.about,
 )
 
 const mapCoords = computed(() => {
